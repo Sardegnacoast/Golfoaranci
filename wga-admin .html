@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WGA · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #2dd4bf;
+  --orange: #f9b332;
+  --red: #e84b1a;
+  --blue-light: #5b9bd5;
+  --glass: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.11);
+  --text: #ffffff;
+  --muted: rgba(255,255,255,0.45);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, #0a2a5e 0%, #0d4a8a 50%, #0a3a6e 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.18);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.logo-title {
+  font-size: 22px;
+  font-weight: 900;
+  display: flex;
+  letter-spacing: -0.01em;
+}
+.logo-title span:nth-child(1) { color: var(--red); }
+.logo-title span:nth-child(2) { color: var(--orange); }
+.logo-title span:nth-child(3) { color: var(--blue-light); }
+.logo-sub {
+  font-size: 10px; color: var(--muted);
+  font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase;
+}
+.header-context {
+  font-size: 12px; color: var(--teal);
+  font-weight: 700; letter-spacing: 0.04em;
+  min-height: 15px; margin-top: 1px;
+}
+.btn-back {
+  position: absolute;
+  left: 16px;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 9px 14px;
+  color: var(--text);
+  font-size: 13px; font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-back:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
+.btn-back.visible { display: flex; }
+
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* HOME */
+.home-wrap {
+  padding: 40px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.home-greeting {
+  font-size: 14px; color: var(--muted);
+  font-weight: 600; margin-bottom: 32px; text-align: center;
+}
+.home-cards {
+  display: flex; flex-direction: column; gap: 16px;
+  width: 100%; max-width: 420px;
+}
+.home-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 26px 22px;
+  display: flex; align-items: center; gap: 18px;
+  cursor: pointer; transition: all 0.22s; text-align: left;
+}
+.home-card:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.22);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+}
+.home-card:active { transform: translateY(-1px); }
+.hc-icon {
+  width: 60px; height: 60px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+}
+.hc-icon.teal { background: rgba(45,212,191,0.14); border: 1px solid rgba(45,212,191,0.28); }
+.hc-icon.orange { background: rgba(249,179,50,0.14); border: 1px solid rgba(249,179,50,0.28); }
+.hc-text h3 { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.hc-text p { font-size: 13px; color: var(--muted); font-weight: 600; line-height: 1.35; }
+.hc-arrow { margin-left: auto; color: var(--muted); font-size: 22px; flex-shrink: 0; }
+
+/* SECTION WRAP */
+.section-wrap { padding: 18px 16px 44px; }
+
+/* STATS */
+.stats { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+.stat-card { flex: 1; min-width: 86px; background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 14px; text-align: center; }
+.stat-num { font-size: 26px; font-weight: 900; color: var(--orange); }
+.stat-num.green { color: #2dd464; }
+.stat-num.dim { color: rgba(255,255,255,0.28); }
+.stat-label { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+/* TOOLBAR */
+.toolbar { display: flex; gap: 9px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.search-box { flex: 1; min-width: 170px; background: var(--glass); border: 1px solid var(--border); border-radius: 11px; padding: 10px 14px; color: white; font-size: 14px; font-family: 'Nunito', sans-serif; outline: none; transition: border-color 0.2s; }
+.search-box::placeholder { color: var(--muted); }
+.search-box:focus { border-color: var(--orange); }
+.filter-btn { background: var(--glass); border: 1px solid var(--border); border-radius: 11px; padding: 10px 13px; color: var(--muted); font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s; }
+.filter-btn.active { background: rgba(249,179,50,0.15); border-color: var(--orange); color: var(--orange); }
+.export-btn { background: linear-gradient(135deg, var(--orange), #e09000); border: none; border-radius: 11px; padding: 10px 15px; color: white; font-size: 13px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+.add-btn { background: linear-gradient(135deg, var(--teal), #14b8a6); border: none; border-radius: 11px; padding: 10px 15px; color: #07283a; font-size: 13px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+select.filter-select { background: var(--glass); border: 1px solid var(--border); border-radius: 11px; padding: 10px 12px; color: var(--muted); font-size: 13px; font-family: 'Nunito', sans-serif; cursor: pointer; outline: none; }
+select.filter-select option { background: #071e2a; color: white; }
+.refresh-btn { background: transparent; border: 1px solid var(--border); border-radius: 11px; padding: 9px 13px; color: var(--muted); font-size: 13px; font-family: 'Nunito', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; margin-left: auto; }
+.refresh-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+/* TABLE */
+.table-wrap { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: rgba(255,255,255,0.04); }
+th { padding: 12px 14px; font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.03); }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+.badge-active { background: rgba(45,212,100,0.15); color: #2dd464; border: 1px solid rgba(45,212,100,0.3); }
+.badge-inactive { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); }
+.dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+.dot-active { background: #2dd464; }
+.dot-inactive { background: rgba(255,255,255,0.2); }
+
+/* ACTIVITY CARDS */
+.activity-card { background: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; display: flex; gap: 13px; align-items: center; transition: all 0.22s; }
+.activity-card:hover { background: rgba(255,255,255,0.09); transform: translateX(4px); border-color: rgba(45,212,191,0.28); }
+.act-icon { width: 50px; height: 50px; border-radius: 12px; background: rgba(45,212,191,0.12); border: 1px solid rgba(45,212,191,0.2); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.act-info { flex: 1; min-width: 0; }
+.act-name { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+.act-desc { font-size: 13px; color: var(--muted); margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.act-meta { display: flex; gap: 10px; font-size: 11px; color: rgba(255,255,255,0.4); flex-wrap: wrap; }
+.act-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn-edit { background: var(--glass); border: 1px solid var(--border); border-radius: 9px; padding: 7px 10px; color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-edit:hover { border-color: var(--teal); color: var(--teal); }
+.btn-del { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.22); border-radius: 9px; padding: 7px 10px; color: #fca5a5; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-del:hover { background: rgba(239,68,68,0.18); }
+
+/* MODAL */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(8px); z-index: 500; padding: 20px; overflow-y: auto; }
+.modal.show { display: flex; align-items: center; justify-content: center; }
+.modal-content { background: linear-gradient(135deg, rgba(10,42,58,0.98), rgba(7,30,42,0.98)); border: 1px solid rgba(255,255,255,0.14); border-radius: 22px; padding: 26px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-size: 18px; font-weight: 800; color: var(--teal); }
+.modal-close { background: var(--glass); border: 1px solid var(--border); color: var(--text); width: 32px; height: 32px; border-radius: 9px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.modal-close:hover { background: rgba(239,68,68,0.2); border-color: #ef4444; color: #ef4444; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-group input,.form-group select,.form-group textarea { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid var(--border); border-radius: 11px; padding: 11px 13px; color: var(--text); font-size: 14px; font-family: 'Nunito', sans-serif; transition: all 0.2s; }
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus { outline: none; border-color: var(--teal); background: rgba(255,255,255,0.12); }
+.form-group textarea { min-height: 76px; resize: vertical; }
+.form-group small { display: block; margin-top: 5px; font-size: 11px; color: rgba(255,255,255,0.36); line-height: 1.5; }
+.form-actions { display: flex; gap: 10px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
+.btn-save { flex: 1; background: linear-gradient(135deg, var(--teal), #14b8a6); border: none; border-radius: 11px; padding: 12px; color: #07283a; font-size: 14px; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.btn-cancel { background: var(--glass); border: 1px solid var(--border); border-radius: 11px; padding: 12px 17px; color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif; }
+.tag-container { display: flex; flex-wrap: wrap; gap: 6px; min-height: 42px; padding: 8px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); border-radius: 11px; cursor: text; transition: border-color 0.2s; }
+.tag-container:focus-within { border-color: var(--teal); }
+.tag { background: rgba(45,212,191,0.12); border: 1px solid rgba(45,212,191,0.26); color: var(--teal); padding: 4px 9px; border-radius: 7px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+.tag-rm { background: none; border: none; color: var(--teal); cursor: pointer; font-size: 15px; line-height: 1; padding: 0; }
+.tag-rm:hover { color: #ef4444; }
+.msg { padding: 11px 14px; border-radius: 11px; margin-bottom: 14px; font-size: 13px; font-weight: 700; display: none; }
+.msg-ok { background: rgba(45,212,191,0.11); border: 1px solid rgba(45,212,191,0.28); color: var(--teal); }
+.msg-err { background: rgba(239,68,68,0.11); border: 1px solid rgba(239,68,68,0.28); color: #fca5a5; }
+.msg.show { display: block; }
+.loading,.empty-state { text-align: center; padding: 44px 20px; color: var(--muted); font-size: 14px; }
+.empty-state { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <button class="btn-back" id="btn-back" onclick="goHome()">← Menù</button>
+  <div class="header-inner">
+    <div class="logo-title"><span>Welcome</span><span>Golfo</span><span>Aranci</span></div>
+    <div class="logo-sub">Admin Dashboard</div>
+    <div class="header-context" id="header-context"></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="home-wrap">
+    <p class="home-greeting">Seleziona una sezione</p>
+    <div class="home-cards">
+      <div class="home-card" onclick="goTo('activities')">
+        <div class="hc-icon teal">📍</div>
+        <div class="hc-text">
+          <h3>Attività</h3>
+          <p>Gestisci luoghi, ristoranti, spiagge e servizi locali</p>
+        </div>
+        <div class="hc-arrow">›</div>
+      </div>
+      <div class="home-card" onclick="goTo('newsletter')">
+        <div class="hc-icon orange">📧</div>
+        <div class="hc-text">
+          <h3>Newsletter</h3>
+          <p>Visualizza iscritti, filtra e scarica la lista in CSV</p>
+        </div>
+        <div class="hc-arrow">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVITIES -->
+<div class="screen" id="screen-activities">
+  <div class="section-wrap">
+    <div class="toolbar">
+      <input class="search-box" id="act-search" type="text" placeholder="🔍 Cerca attività..." oninput="filterAct()">
+      <select class="filter-select" id="act-cat" onchange="filterAct()">
+        <option value="">📂 Tutte</option>
+        <option value="food">🍽️ Food</option>
+        <option value="spiagge">🏖️ Spiagge</option>
+        <option value="attrazioni">⭐ Attrazioni</option>
+        <option value="bar">🍹 Bar</option>
+        <option value="gelateria">🍦 Gelateria</option>
+        <option value="noleggio">🚤 Noleggio</option>
+        <option value="escursioni">🥾 Escursioni</option>
+        <option value="servizi_spiaggia">🏖️ Servizi</option>
+        <option value="negozio">🛍️ Negozio</option>
+        <option value="eventi">🎉 Eventi</option>
+        <option value="locali_notturni">🌙 Notturni</option>
+        <option value="salute">❤️ Salute</option>
+        <option value="sport">⚽ Sport</option>
+        <option value="pet">🐾 Pet</option>
+        <option value="dormire">🛏️ Dormire</option>
+      </select>
+      <button class="add-btn" onclick="openActModal()">➕ Nuova</button>
+    </div>
+    <div id="act-loading" class="loading">⏳ Caricamento...</div>
+    <div id="act-empty" class="empty-state" style="display:none;">
+      <div style="font-size:44px;margin-bottom:10px;">📋</div>
+      <p style="font-weight:700;margin-bottom:6px;">Nessuna attività</p>
+      <p style="font-size:13px;opacity:0.6;margin-bottom:16px;">Inizia aggiungendo la prima</p>
+      <button class="add-btn" style="margin:0 auto;" onclick="openActModal()">➕ Aggiungi</button>
+    </div>
+    <div id="act-list"></div>
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<div class="screen" id="screen-newsletter">
+  <div class="section-wrap">
+    <div class="stats">
+      <div class="stat-card"><div class="stat-num" id="ns-total">—</div><div class="stat-label">Totale</div></div>
+      <div class="stat-card"><div class="stat-num green" id="ns-active">—</div><div class="stat-label">Attivi</div></div>
+      <div class="stat-card"><div class="stat-num dim" id="ns-inactive">—</div><div class="stat-label">Discritti</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="search-box" id="ns-search" type="text" placeholder="🔍 Cerca email..." oninput="renderNewsletter()">
+      <button class="filter-btn active" id="nf-all" onclick="setNsFilter('all')">Tutti</button>
+      <button class="filter-btn" id="nf-active" onclick="setNsFilter('active')">Attivi</button>
+      <button class="filter-btn" id="nf-inactive" onclick="setNsFilter('inactive')">Discritti</button>
+      <button class="export-btn" onclick="exportCSV()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        CSV
+      </button>
+      <button class="refresh-btn" onclick="loadNewsletter()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:13px;height:13px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Email</th><th>Stato</th><th>Iscrizione</th></tr></thead>
+        <tbody id="ns-tbody"><tr><td colspan="4" class="loading">Caricamento...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="act-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="act-modal-title">Nuova Attività</h2>
+      <button class="modal-close" onclick="closeActModal()">×</button>
+    </div>
+    <div class="msg msg-ok" id="act-msg-ok"></div>
+    <div class="msg msg-err" id="act-msg-err"></div>
+    <form id="act-form" onsubmit="saveActivity(event)">
+      <div class="form-group"><label>Nome *</label><input type="text" name="nome" required placeholder="Es: La Pecora Viziosa"></div>
+      <div class="form-group">
+        <label>Categoria *</label>
+        <select name="categoria" required>
+          <option value="">Seleziona...</option>
+          <option value="food">🍽️ Food</option><option value="spiagge">🏖️ Spiagge</option>
+          <option value="attrazioni">⭐ Attrazioni</option><option value="bar">🍹 Bar</option>
+          <option value="gelateria">🍦 Gelateria</option><option value="noleggio">🚤 Noleggio</option>
+          <option value="escursioni">🥾 Escursioni</option><option value="servizi_spiaggia">🏖️ Servizi Spiaggia</option>
+          <option value="negozio">🛍️ Negozio</option><option value="eventi">🎉 Eventi</option>
+          <option value="locali_notturni">🌙 Locali Notturni</option><option value="salute">❤️ Salute</option>
+          <option value="sport">⚽ Sport</option><option value="pet">🐾 Pet</option>
+          <option value="dormire">🛏️ Dormire</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Google Maps Link *</label><input type="url" name="google_maps_url" required placeholder="https://maps.app.goo.gl/..."></div>
+      <div class="form-group"><label>Descrizione</label><input type="text" name="descrizione" placeholder="Es: Pizzeria · 10-20 € · 1.9K recensioni"></div>
+      <div class="form-group"><label>Indirizzo</label><input type="text" name="indirizzo" placeholder="Es: Via Libertà, 132"></div>
+      <div class="form-group"><label>Rating (1-5)</label><input type="number" name="rating" min="1" max="5" step="0.1" placeholder="4.5"></div>
+      <div class="form-group">
+        <label>Tags</label>
+        <div class="tag-container" id="tag-container" onclick="document.getElementById('tag-input').focus()">
+          <input type="text" id="tag-input" placeholder="Scrivi e premi Invio..."
+            style="flex:1;background:none;border:none;color:#fff;outline:none;min-width:140px;font-size:13px;font-family:'Nunito',sans-serif;"
+            onkeydown="handleTag(event)">
+        </div>
+        <small>Premi Invio dopo ogni tag.</small>
+        <input type="hidden" name="tags" id="tags-hidden">
+      </div>
+      <input type="hidden" name="id" id="act-id">
+      <div class="form-actions">
+        <button type="submit" class="btn-save">💾 Salva</button>
+        <button type="button" class="btn-cancel" onclick="closeActModal()">Annulla</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const SB     = 'https://camubqubjqdcuwwhbfry.supabase.co';
+const SK_ACT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhbXVicXVianFkY3V3d2hiZnJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTExODQsImV4cCI6MjA5MTkyNzE4NH0.KcgHdWMVJSWAmPNPBZb_ZohAAIays-dqHaLKLvwE5Vk';
+const SK_NS  = SK_ACT;
+
+let allAct = [], allNs = [], nsFilter = 'all', currentTags = [];
+let actLoaded = false, nsLoaded = false;
+
+const LABELS = { activities: 'Attività', newsletter: 'Newsletter' };
+
+function goTo(section) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + section).classList.add('active');
+  document.getElementById('btn-back').classList.add('visible');
+  document.getElementById('header-context').textContent = LABELS[section] || '';
+  if (section === 'activities' && !actLoaded) { loadActivities(); actLoaded = true; }
+  if (section === 'newsletter'  && !nsLoaded)  { loadNewsletter();  nsLoaded  = true; }
+}
+
+function goHome() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-home').classList.add('active');
+  document.getElementById('btn-back').classList.remove('visible');
+  document.getElementById('header-context').textContent = '';
+}
+
+async function sbReq(key, path, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type':'application/json','apikey':key,'Authorization':'Bearer '+key,'Prefer':'return=representation' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(SB + path, opts);
+  if (!res.ok) { const e = await res.json().catch(()=>{}); throw new Error((e&&e.message)||'Errore '+res.status); }
+  return res.json().catch(()=>null);
+}
+
+/* ACTIVITIES */
+async function loadActivities() {
+  document.getElementById('act-loading').style.display = 'block';
+  document.getElementById('act-empty').style.display = 'none';
+  document.getElementById('act-list').innerHTML = '';
+  try {
+    allAct = await sbReq(SK_ACT, '/rest/v1/activities?select=*&order=created_at.desc') || [];
+    document.getElementById('act-loading').style.display = 'none';
+    if (allAct.length === 0) document.getElementById('act-empty').style.display = 'block';
+    else renderActivities(allAct);
+  } catch(e) { document.getElementById('act-loading').textContent = '⚠️ ' + e.message; }
+}
+
+const ICONS = {food:'🍽️',spiagge:'🏖️',attrazioni:'⭐',bar:'🍹',gelateria:'🍦',noleggio:'🚤',escursioni:'🥾',servizi_spiaggia:'🏖️',negozio:'🛍️',eventi:'🎉',locali_notturni:'🌙',salute:'❤️',sport:'⚽',pet:'🐾'};
+
+function renderActivities(acts) {
+  const list = document.getElementById('act-list');
+  list.innerHTML = '';
+  if (!acts.length) { list.innerHTML = '<div class="empty-state" style="margin-top:10px;"><p>Nessun risultato</p></div>'; return; }
+  acts.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'activity-card';
+    card.innerHTML = `
+      <div class="act-icon">${ICONS[a.categoria]||'📍'}</div>
+      <div class="act-info">
+        <div class="act-name">${a.nome}</div>
+        <div class="act-desc">${a.descrizione||a.indirizzo||'—'}</div>
+        <div class="act-meta">
+          <span>📂 ${a.categoria}</span>
+          ${a.rating?`<span>⭐ ${a.rating}</span>`:''}
+          ${a.indirizzo?`<span>📍 ${a.indirizzo}</span>`:''}
+        </div>
+      </div>
+      <div class="act-actions">
+        <button class="btn-edit" onclick="editActivity(${a.id})">✏️</button>
+        <button class="btn-del" onclick="deleteActivity(${a.id})">🗑️</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function filterAct() {
+  const q = document.getElementById('act-search').value.toLowerCase();
+  const cat = document.getElementById('act-cat').value;
+  let f = allAct;
+  if (q) f = f.filter(a => (a.nome+' '+(a.descrizione||'')+' '+(a.indirizzo||'')).toLowerCase().includes(q));
+  if (cat) f = f.filter(a => a.categoria === cat);
+  renderActivities(f);
+}
+
+function openActModal(id=null) {
+  document.getElementById('act-modal').classList.add('show');
+  document.getElementById('act-modal-title').textContent = id ? 'Modifica Attività' : 'Nuova Attività';
+  document.getElementById('act-form').reset();
+  document.getElementById('act-id').value = id || '';
+  document.getElementById('act-msg-ok').className = 'msg msg-ok';
+  document.getElementById('act-msg-err').className = 'msg msg-err';
+  currentTags = [];
+  renderTags();
+  if (id) {
+    const a = allAct.find(x => x.id === id);
+    if (a) {
+      document.querySelector('[name="nome"]').value = a.nome;
+      document.querySelector('[name="categoria"]').value = a.categoria;
+      document.querySelector('[name="google_maps_url"]').value = a.google_maps_url;
+      document.querySelector('[name="descrizione"]').value = a.descrizione||'';
+      document.querySelector('[name="indirizzo"]').value = a.indirizzo||'';
+      document.querySelector('[name="rating"]').value = a.rating||'';
+      currentTags = a.tags||[];
+      renderTags();
+    }
+  }
+}
+
+function closeActModal() { document.getElementById('act-modal').classList.remove('show'); }
+
+function handleTag(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const tag = e.target.value.trim();
+  if (tag && !currentTags.includes(tag)) { currentTags.push(tag); renderTags(); }
+  e.target.value = '';
+}
+function removeTag(tag) { currentTags = currentTags.filter(t => t !== tag); renderTags(); }
+function renderTags() {
+  const c = document.getElementById('tag-container');
+  const inp = document.getElementById('tag-input');
+  c.querySelectorAll('.tag').forEach(el => el.remove());
+  currentTags.forEach(tag => {
+    const el = document.createElement('span');
+    el.className = 'tag';
+    el.innerHTML = `${tag} <button type="button" class="tag-rm" onclick="removeTag('${tag.replace(/'/g,"\\'")}')">×</button>`;
+    c.insertBefore(el, inp);
+  });
+  document.getElementById('tags-hidden').value = JSON.stringify(currentTags);
+}
+
+async function saveActivity(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const data = Object.fromEntries(fd.entries());
+  const id = data.id; delete data.id;
+  try { data.tags = JSON.parse(data.tags); } catch { data.tags = []; }
+  if (data.rating) data.rating = parseFloat(data.rating); else delete data.rating;
+  Object.keys(data).forEach(k => { if (data[k]==='') delete data[k]; });
+  const ok = document.getElementById('act-msg-ok');
+  const err = document.getElementById('act-msg-err');
+  ok.className='msg msg-ok'; err.className='msg msg-err';
+  try {
+    if (id) { await sbReq(SK_ACT,`/rest/v1/activities?id=eq.${id}`,'PATCH',data); ok.textContent='✓ Aggiornata!'; }
+    else     { await sbReq(SK_ACT,'/rest/v1/activities','POST',data); ok.textContent='✓ Creata!'; }
+    ok.className='msg msg-ok show';
+    setTimeout(()=>{ closeActModal(); actLoaded=false; loadActivities(); actLoaded=true; },1400);
+  } catch(er) { err.textContent='✗ '+er.message; err.className='msg msg-err show'; }
+}
+
+async function deleteActivity(id) {
+  const a = allAct.find(x => x.id===id);
+  if (!confirm(`Eliminare "${a.nome}"?`)) return;
+  try { await sbReq(SK_ACT,`/rest/v1/activities?id=eq.${id}`,'DELETE'); loadActivities(); }
+  catch(e) { alert('Errore: '+e.message); }
+}
+function editActivity(id) { openActModal(id); }
+
+/* NEWSLETTER */
+async function loadNewsletter() {
+  document.getElementById('ns-tbody').innerHTML = '<tr><td colspan="4" class="loading">Caricamento...</td></tr>';
+  try {
+    allNs = await sbReq(SK_NS,'/rest/v1/newsletter?select=*&order=created_at.desc') || [];
+    const active = allNs.filter(r => r.attiva!==false).length;
+    document.getElementById('ns-total').textContent = allNs.length;
+    document.getElementById('ns-active').textContent = active;
+    document.getElementById('ns-inactive').textContent = allNs.length - active;
+    renderNewsletter();
+  } catch(e) {
+    document.getElementById('ns-tbody').innerHTML=`<tr><td colspan="4" style="text-align:center;padding:28px;color:#fca5a5;">⚠️ ${e.message}</td></tr>`;
+  }
+}
+
+function setNsFilter(f) {
+  nsFilter = f;
+  ['all','active','inactive'].forEach(k => document.getElementById('nf-'+k).classList.toggle('active', k===f));
+  renderNewsletter();
+}
+
+function renderNewsletter() {
+  const q = document.getElementById('ns-search').value.toLowerCase();
+  const data = allNs.filter(r => {
+    const mf = nsFilter==='all' ? true : nsFilter==='active' ? r.attiva!==false : r.attiva===false;
+    return mf && (!q || (r.email||'').toLowerCase().includes(q));
+  });
+  if (!data.length) { document.getElementById('ns-tbody').innerHTML='<tr><td colspan="4" style="text-align:center;padding:28px;color:var(--muted);">Nessun risultato</td></tr>'; return; }
+  document.getElementById('ns-tbody').innerHTML = data.map((r,i) => {
+    const attiva = r.attiva!==false;
+    const dt = r.created_at ? new Date(r.created_at).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px;">${i+1}</td>
+      <td style="font-weight:700;">${r.email||'—'}</td>
+      <td><span class="badge ${attiva?'badge-active':'badge-inactive'}"><span class="dot ${attiva?'dot-active':'dot-inactive'}"></span>${attiva?'Attivo':'Discritto'}</span></td>
+      <td style="color:var(--muted);">${dt}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const q = document.getElementById('ns-search').value.toLowerCase();
+  const data = allNs.filter(r => {
+    const mf = nsFilter==='all' ? true : nsFilter==='active' ? r.attiva!==false : r.attiva===false;
+    return mf && (!q || (r.email||'').toLowerCase().includes(q));
+  });
+  const csv = ['Email,Stato,Data iscrizione',...data.map(r=>{
+    const dt = r.created_at ? new Date(r.created_at).toLocaleDateString('it-IT') : '';
+    return `${r.email},${r.attiva!==false?'Attivo':'Discritto'},${dt}`;
+  })].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = 'newsletter_wga.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
