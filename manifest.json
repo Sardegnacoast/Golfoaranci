@@ -1,0 +1,125 @@
+{
+  "id": "/",
+  "name": "Welcome Golfo Aranci",
+  "short_name": "WGA",
+  "description": "La prima e unica app di Golfo Aranci - guida turistica digitale",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "window-controls-overlay", "tabbed"],
+  "orientation": "portrait",
+  "background_color": "#0a2a3a",
+  "theme_color": "#0a2a3a",
+  "lang": "it",
+  "dir": "ltr",
+  "categories": ["travel", "lifestyle", "navigation"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "scope_extensions": [
+    { "origin": "https://welcomegolfoaranci.app" }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": { "title": "title", "text": "text", "url": "url" }
+  },
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": { "text/plain": [".txt"] }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+wga",
+      "url": "/?url=%s"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "Welcome Golfo Aranci",
+      "description": "Guida turistica di Golfo Aranci",
+      "tag": "wga-widget",
+      "ms_ac_template": "widget/ac-template.json",
+      "data": "widget/data.json",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "screenshot1.png",
+          "sizes": "1080x1920",
+          "label": "Widget - Welcome Golfo Aranci"
+        }
+      ],
+      "icons": [
+        { "src": "icon-192.png", "sizes": "192x192" }
+      ]
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Spiagge",
+      "short_name": "Spiagge",
+      "url": "/",
+      "icons": [{ "src": "shortcut-icon.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Emergenze",
+      "short_name": "SOS",
+      "url": "/",
+      "icons": [{ "src": "shortcut-icon.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Servizi",
+      "short_name": "Servizi",
+      "url": "/",
+      "icons": [{ "src": "shortcut-icon.png", "sizes": "96x96", "type": "image/png" }]
+    }
+  ],
+  "icons": [
+    { "src": "icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
+    { "src": "icon-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+    { "src": "icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
+    { "src": "icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home - Welcome Golfo Aranci"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Spiagge - Welcome Golfo Aranci"
+    },
+    {
+      "src": "screenshot_wide1.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Home Wide - Welcome Golfo Aranci"
+    },
+    {
+      "src": "screenshot_wide2.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Servizi Wide - Welcome Golfo Aranci"
+    }
+  ]
+}
