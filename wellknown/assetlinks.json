@@ -1,8 +1,8 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "app.welcomegolfoaranci.twa",
-        "sha256_cert_fingerprints": ["8D:F7:E9:2F:E4:A5:DA:43:2F:2A:69:AF:42:D8:DE:75:FD:15:AC:A0:E4:5C:9F:B3:E6:B8:4E:A0:FE:D0:D0:84"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.welcomegolfoaranci.twa",
+    "sha256_cert_fingerprints": ["A1:68:37:47:6E:A9:14:CA:A2:9A:88:B2:CD:30:8C:CA:F7:ED:8A:5B:C4:15:5F:29:5C:73:4E:96:6E:34:48:3B"]
+  }
+}]
