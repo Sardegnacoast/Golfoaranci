@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.welcomegolfoaranci.twa",
+        "sha256_cert_fingerprints": ["8D:F7:E9:2F:E4:A5:DA:43:2F:2A:69:AF:42:D8:DE:75:FD:15:AC:A0:E4:5C:9F:B3:E6:B8:4E:A0:FE:D0:D0:84"]
+      }
+    }]
