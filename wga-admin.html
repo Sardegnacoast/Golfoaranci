@@ -528,19 +528,52 @@ select option {
     </button>
   </div>
 
-  <!-- NOTIFICHE PUSH -->
+  <!-- CREA MESSAGGIO: push e/o email, decide chi pubblica -->
   <div class="controls" style="flex-direction:column;align-items:stretch;">
-    <div style="font-size:16px;font-weight:800;margin-bottom:14px;">📢 Invia Notifica Push</div>
+    <div style="font-size:16px;font-weight:800;margin-bottom:4px;">📢 Crea Messaggio</div>
+    <small style="color:rgba(255,255,255,0.4);margin-bottom:14px;">Scrivi una volta, poi scegli come inviarlo: notifica push a chi ha l'app, o email vera a tutti gli iscritti da welcomegolfoaranci@gmail.com.</small>
     <div class="success-msg" id="notif-success"></div>
     <div class="error-msg" id="notif-error"></div>
-    <div class="form-group" style="margin-bottom:14px;">
-      <textarea id="notif-message" rows="3" placeholder="Scrivi il messaggio da inviare a tutti gli utenti dell'app..."></textarea>
+    <div class="success-msg" id="newsletter-success"></div>
+    <div class="error-msg" id="newsletter-error"></div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Oggetto (solo per l'email)</label>
+      <input type="text" id="newsletter-subject" placeholder="Es: Offerta speciale per il weekend a Golfo Aranci">
     </div>
-    <button class="btn" onclick="sendPushNotification()" style="justify-content:center;">
-      <span>🚀</span>
-      <span>Invia a tutti gli utenti</span>
-    </button>
-    <small style="color:rgba(255,255,255,0.4);margin-top:10px;">Va a tutti gli utenti che hanno installato l'app e accettato le notifiche (tramite OneSignal).</small>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>Messaggio</label>
+      <textarea id="notif-message" rows="4" placeholder="Scrivi qui il messaggio..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn" onclick="sendPushNotification()" style="flex:1;min-width:180px;justify-content:center;">
+        <span>🚀</span>
+        <span>Invia Push Notification</span>
+      </button>
+      <button class="btn btn-secondary" id="newsletter-send-btn" onclick="sendNewsletterEmail()" style="flex:1;min-width:180px;justify-content:center;">
+        <span>📨</span>
+        <span>Invia Email (<span id="newsletter-dest-count">0</span> iscritti)</span>
+      </button>
+    </div>
+    <small style="color:rgba(255,255,255,0.4);margin-top:10px;">Push: va a chi ha installato l'app e accettato le notifiche (OneSignal). Email: va a tutti gli indirizzi raccolti qui sotto, richiede che la funzione "send-newsletter" sia pubblicata su Supabase.</small>
+  </div>
+
+  <!-- ISCRITTI NEWSLETTER -->
+  <div class="controls" style="flex-direction:column;align-items:stretch;">
+    <div style="font-size:16px;font-weight:800;margin-bottom:14px;">📧 Iscritti Newsletter (<span id="iscritti-count">0</span>)</div>
+    <small style="color:rgba(255,255,255,0.4);margin-bottom:14px;">Email raccolte dal box "Iscriviti" nell'app — usale per inviare offerte e avvisi ai clienti.</small>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="btn" onclick="copiaEmailIscritti()" style="flex:1;min-width:160px;">
+        <span>📋</span>
+        <span>Copia tutte le email</span>
+      </button>
+      <button class="btn btn-secondary" onclick="esportaIscrittiCSV()" style="flex:1;min-width:160px;">
+        <span>⬇️</span>
+        <span>Esporta CSV</span>
+      </button>
+    </div>
+    <div class="success-msg" id="iscritti-success"></div>
+    <div id="iscritti-loading" style="color:rgba(255,255,255,0.4);font-size:13px;">⏳ Caricamento iscritti...</div>
+    <div id="iscritti-list" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
   </div>
 
   <!-- CONTROLS -->
@@ -657,6 +690,12 @@ select option {
       </div>
 
       <div class="form-group">
+        <label>Foto (URL immagine)</label>
+        <input type="url" name="foto" placeholder="Es: https://.../foto.jpg">
+        <small>Link diretto a un'immagine (jpg/png). Se vuoto, l'attività mostra l'icona della categoria. Puoi caricare una foto su un servizio come imgur.com e incollare qui il link diretto.</small>
+      </div>
+
+      <div class="form-group">
         <label>Sito web</label>
         <input type="url" name="sito_web" placeholder="Es: https://www.esempio.it">
         <small>Se compilato, nel dettaglio dell'attività compare il pulsante "Visita il sito"</small>
@@ -757,284 +796,49 @@ async function sendPushNotification() {
 
     success.textContent = '✓ Notifica inviata a tutti gli utenti!';
     success.className = 'success-msg show';
-    textarea.value = '';
   } catch (err) {
     error.textContent = '✗ ' + err.message;
     error.className = 'error-msg show';
   }
 }
 
-async function supabase(path, method = 'GET', body = null) {
-  const opts = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': 'return=representation'
-    }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  
-  const res = await fetch(SUPABASE_URL + path, opts);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `Errore ${res.status}`);
-  }
-  return res.json().catch(() => null);
-}
+/* ═══ CREA MESSAGGIO EMAIL (invio reale via Gmail, non push) ═══
+   Passa da questa pagina a una Supabase Edge Function
+   (supabase/functions/send-newsletter), che tiene al sicuro la
+   password Gmail e legge/invia lato server. */
+const SEND_NEWSLETTER_URL = SUPABASE_URL + '/functions/v1/send-newsletter';
 
-async function loadActivities() {
-  const loading = document.getElementById('activities-loading');
-  const empty = document.getElementById('activities-empty');
-  const list = document.getElementById('activities-list');
-  
-  loading.style.display = 'block';
-  empty.style.display = 'none';
-  list.innerHTML = '';
-  
-  try {
-    const data = await supabase('/rest/v1/activities?select=*&order=created_at.desc');
-    allActivities = data || [];
-    
-    loading.style.display = 'none';
-    
-    if (allActivities.length === 0) {
-      empty.style.display = 'block';
-    } else {
-      renderActivities(allActivities);
-    }
-  } catch (e) {
-    loading.style.display = 'none';
-    empty.style.display = 'block';
-    empty.innerHTML = `
-      <div class="empty-icon">⚠️</div>
-      <p style="font-size:16px;font-weight:600;margin-bottom:8px;color:#ef4444;">Errore di connessione</p>
-      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;">${e.message}</p>
-      <button class="btn" onclick="loadActivities()">🔄 Riprova</button>
-      <p style="font-size:11px;margin-top:16px;color:rgba(255,255,255,0.3);">Verifica di aver eseguito supabase-reset.sql</p>
-    `;
-  }
-}
+async function sendNewsletterEmail() {
+  const subjectEl = document.getElementById('newsletter-subject');
+  const messageEl = document.getElementById('notif-message');
+  const success = document.getElementById('newsletter-success');
+  const error = document.getElementById('newsletter-error');
+  const btn = document.getElementById('newsletter-send-btn');
+  const subject = subjectEl.value.trim();
+  const message = messageEl.value.trim();
 
-function renderActivities(acts) {
-  const list = document.getElementById('activities-list');
-  list.innerHTML = '';
-  
-  const icons = {
-    food: '🍽️', spiagge: '🏖️', attrazioni: '⭐', bar: '🍹',
-    gelateria: '🍦', noleggio: '🚤', escursioni: '🥾',
-    servizi_spiaggia: '🏖️', negozio: '🛍️', eventi: '🎉',
-    locali_notturni: '🌙', salute: '❤️', sport: '⚽', pet: '🐾',
-    alloggio: '🏠'
-  };
-
-  acts.forEach(act => {
-    const card = document.createElement('div');
-    card.className = 'activity-card';
-    card.innerHTML = `
-      <div class="activity-icon">${icons[act.categoria] || '📍'}</div>
-      <div class="activity-info">
-        <div class="activity-name">${act.nome}${act.in_evidenza ? ' <span title="In evidenza nella Home">⭐</span>' : ''}</div>
-        <div class="activity-desc">${act.descrizione || act.indirizzo || 'Nessuna descrizione'}</div>
-        <div class="activity-meta">
-          <span>📂 ${act.categoria}</span>
-          ${act.rating ? `<span>⭐ ${act.rating}</span>` : ''}
-          ${act.indirizzo ? `<span>📍 ${act.indirizzo}</span>` : ''}
-          ${act.telefono ? `<span>📞 ${act.telefono}</span>` : ''}
-          ${act.orario ? `<span>🕐 ${act.orario}</span>` : ''}
-          ${act.sito_web ? `<span>🌐 sito</span>` : ''}
-        </div>
-      </div>
-      <div class="activity-actions">
-        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editActivity(${act.id})" title="Modifica">✏️</button>
-        <button class="btn btn-danger btn-small" onclick="event.stopPropagation();deleteActivity(${act.id})" title="Elimina">🗑️</button>
-      </div>
-    `;
-    list.appendChild(card);
-  });
-}
-
-function filterActivities() {
-  const search = document.getElementById('search-box').value.toLowerCase();
-  const cat = document.getElementById('filter-categoria').value;
-  
-  let filtered = allActivities;
-  
-  if (search) {
-    filtered = filtered.filter(a => 
-      a.nome.toLowerCase().includes(search) ||
-      (a.descrizione || '').toLowerCase().includes(search) ||
-      (a.indirizzo || '').toLowerCase().includes(search)
-    );
-  }
-  
-  if (cat) {
-    filtered = filtered.filter(a => a.categoria === cat);
-  }
-  
-  const list = document.getElementById('activities-list');
-  const empty = document.getElementById('activities-empty');
-  
-  if (filtered.length === 0 && allActivities.length > 0) {
-    list.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>Nessun risultato trovato</p></div>';
-  } else {
-    renderActivities(filtered);
-  }
-}
-
-function openModal(id = null) {
-  document.getElementById('activity-modal').classList.add('show');
-  document.getElementById('modal-title').textContent = id ? 'Modifica Attività' : 'Nuova Attività';
-  document.getElementById('activity-form').reset();
-  document.getElementById('activity-id').value = id || '';
-  document.getElementById('modal-success').className = 'success-msg';
-  document.getElementById('modal-error').className = 'error-msg';
-  currentTags = [];
-  renderTags();
-  
-  if (id) {
-    const act = allActivities.find(a => a.id === id);
-    if (act) {
-      document.querySelector('[name="nome"]').value = act.nome;
-      document.querySelector('[name="categoria"]').value = act.categoria;
-      document.querySelector('[name="google_maps_url"]').value = act.google_maps_url;
-      document.querySelector('[name="descrizione"]').value = act.descrizione || '';
-      document.querySelector('[name="indirizzo"]').value = act.indirizzo || '';
-      document.querySelector('[name="telefono"]').value = act.telefono || '';
-      document.querySelector('[name="sito_web"]').value = act.sito_web || '';
-      document.querySelector('[name="orario"]').value = act.orario || '';
-      document.querySelector('[name="lat"]').value = act.lat != null ? act.lat : '';
-      document.querySelector('[name="lng"]').value = act.lng != null ? act.lng : '';
-      document.querySelector('[name="rating"]').value = act.rating || '';
-      document.getElementById('in-evidenza-checkbox').checked = !!act.in_evidenza;
-      currentTags = act.tags || [];
-      renderTags();
-    }
-  }
-}
-
-function closeModal() {
-  document.getElementById('activity-modal').classList.remove('show');
-}
-
-function handleTagInput(e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    const input = e.target;
-    const tag = input.value.trim();
-    if (tag && !currentTags.includes(tag)) {
-      currentTags.push(tag);
-      renderTags();
-      input.value = '';
-    }
-  }
-}
-
-function removeTag(tag) {
-  currentTags = currentTags.filter(t => t !== tag);
-  renderTags();
-}
-
-function renderTags() {
-  const container = document.getElementById('tag-container');
-  const input = document.getElementById('tag-input');
-  const hidden = document.getElementById('tags-hidden');
-  
-  container.querySelectorAll('.tag').forEach(el => el.remove());
-  
-  currentTags.forEach(tag => {
-    const tagEl = document.createElement('span');
-    tagEl.className = 'tag';
-    tagEl.innerHTML = `${tag} <button type="button" class="tag-remove" onclick="removeTag('${tag.replace(/'/g, "\\'")}')">×</button>`;
-    container.insertBefore(tagEl, input);
-  });
-  
-  hidden.value = JSON.stringify(currentTags);
-}
-
-async function saveActivity(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const data = Object.fromEntries(formData.entries());
-  const id = data.id;
-  delete data.id;
-
-  data.in_evidenza = formData.get('in_evidenza') === 'on';
-
-  try {
-    data.tags = JSON.parse(data.tags);
-  } catch {
-    data.tags = [];
-  }
-  
-  if (data.rating) {
-    data.rating = parseFloat(data.rating);
-  } else {
-    delete data.rating;
-  }
-
-  if (data.lat) {
-    data.lat = parseFloat(data.lat);
-  } else {
-    delete data.lat;
-  }
-
-  if (data.lng) {
-    data.lng = parseFloat(data.lng);
-  } else {
-    delete data.lng;
-  }
-
-  Object.keys(data).forEach(key => {
-    if (data[key] === '') delete data[key];
-  });
-  
-  const success = document.getElementById('modal-success');
-  const error = document.getElementById('modal-error');
-  
   success.className = 'success-msg';
   error.className = 'error-msg';
-  
-  try {
-    if (id) {
-      await supabase(`/rest/v1/activities?id=eq.${id}`, 'PATCH', data);
-      success.textContent = '✓ Attività aggiornata con successo!';
-    } else {
-      await supabase('/rest/v1/activities', 'POST', data);
-      success.textContent = '✓ Attività creata con successo!';
-    }
-    
-    success.className = 'success-msg show';
-    
-    setTimeout(() => {
-      closeModal();
-      loadActivities();
-    }, 1500);
-  } catch (err) {
-    error.textContent = '✗ ' + err.message;
+
+  if (!subject) {
+    error.textContent = '✗ Scrivi un oggetto prima di inviare.';
     error.className = 'error-msg show';
+    return;
   }
-}
+  if (!message) {
+    error.textContent = '✗ Scrivi un messaggio prima di inviare.';
+    error.className = 'error-msg show';
+    return;
+  }
+  if (!allIscritti.length) {
+    error.textContent = '✗ Nessun iscritto a cui inviare al momento.';
+    error.className = 'error-msg show';
+    return;
+  }
+  if (!confirm('Inviare questa email a ' + allIscritti.length + ' iscritti da welcomegolfoaranci@gmail.com?')) {
+    return;
+  }
 
-async function deleteActivity(id) {
-  const act = allActivities.find(a => a.id === id);
-  if (!confirm(`Eliminare "${act.nome}"?\n\nQuesta azione non può essere annullata.`)) return;
+  btn.disabled = true;
   
-  try {
-    await supabase(`/rest/v1/activities?id=eq.${id}`, 'DELETE');
-    loadActivities();
-  } catch (e) {
-    alert('Errore: ' + e.message);
-  }
-}
-
-function editActivity(id) {
-  openModal(id);
-}
-
-// Init
-loadActivities();
-</script>
-</body>
-</html>
+[output truncated at 262144 chars]
