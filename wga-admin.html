@@ -576,6 +576,30 @@ select option {
     <div id="iscritti-list" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
   </div>
 
+  <!-- REPORT SETTIMANALE -->
+  <div class="controls" style="flex-direction:column;align-items:stretch;">
+    <div style="font-size:16px;font-weight:800;margin-bottom:4px;">⚙️ Report Settimanale</div>
+    <small style="color:rgba(255,255,255,0.4);margin-bottom:14px;">Email automatica a welcomegolfoaranci@gmail.com con i nuovi iscritti e le attività/categorie più cliccate della settimana.</small>
+    <div class="success-msg" id="report-settings-success"></div>
+    <div class="error-msg" id="report-settings-error"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <input type="checkbox" id="report-enabled-checkbox" style="width:18px;height:18px;accent-color:#2DD4BF;cursor:pointer;" onchange="saveReportSettings()">
+      <label for="report-enabled-checkbox" style="margin:0;cursor:pointer;">Invio automatico attivo</label>
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label>Giorno di invio</label>
+      <select id="report-giorno-select" onchange="saveReportSettings()">
+        <option value="1">Lunedì</option>
+        <option value="2">Martedì</option>
+        <option value="3">Mercoledì</option>
+        <option value="4">Giovedì</option>
+        <option value="5">Venerdì</option>
+        <option value="6">Sabato</option>
+        <option value="0">Domenica</option>
+      </select>
+    </div>
+  </div>
+
   <!-- CONTROLS -->
   <div class="controls">
     <input 
@@ -840,5 +864,419 @@ async function sendNewsletterEmail() {
   }
 
   btn.disabled = true;
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<span>⏳</span><span>Invio in corso...</span>';
+
+  try {
+    const res = await fetch(SEND_NEWSLETTER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify({ subject, message })
+    });
+
+    const result = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(result.error || `Errore ${res.status}`);
+    }
+
+    success.textContent = `✓ Email inviata a ${result.inviate}/${result.totale} iscritti!` + (result.errori && result.errori.length ? ` (${result.errori.length} falliti)` : '');
+    success.className = 'success-msg show';
+    subjectEl.value = '';
+  } catch (err) {
+    error.textContent = '✗ ' + err.message;
+    error.className = 'error-msg show';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+}
+
+async function supabase(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Prefer': 'return=representation'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
   
-[output truncated at 262144 chars]
+  const res = await fetch(SUPABASE_URL + path, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Errore ${res.status}`);
+  }
+  return res.json().catch(() => null);
+}
+
+/* ═══ ISCRITTI NEWSLETTER (email raccolte dall'app) ═══ */
+let allIscritti = [];
+
+async function loadIscritti() {
+  const loading = document.getElementById('iscritti-loading');
+  const list = document.getElementById('iscritti-list');
+  loading.style.display = 'block';
+  list.innerHTML = '';
+  try {
+    const data = await supabase('/rest/v1/newsletter_iscritti?select=*&order=created_at.desc');
+    allIscritti = data || [];
+    document.getElementById('iscritti-count').textContent = allIscritti.length;
+    const destCount = document.getElementById('newsletter-dest-count');
+    if (destCount) destCount.textContent = allIscritti.length;
+    loading.style.display = 'none';
+    if (allIscritti.length === 0) {
+      list.innerHTML = '<div style="color:rgba(255,255,255,0.35);font-size:13px;padding:8px 0;">Nessun iscritto ancora.</div>';
+      return;
+    }
+    list.innerHTML = allIscritti.map(function (i) {
+      const data_str = i.created_at ? new Date(i.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 14px;">' +
+        '<span style="font-size:13px;color:white;">' + i.email + '</span>' +
+        '<span style="font-size:11px;color:rgba(255,255,255,0.4);">' + data_str + (i.lingua ? ' · ' + i.lingua.toUpperCase() : '') + '</span>' +
+      '</div>';
+    }).join('');
+  } catch (e) {
+    loading.style.display = 'none';
+    list.innerHTML = '<div style="color:#ef4444;font-size:13px;">⚠️ Errore: ' + e.message + '<br><small style="color:rgba(255,255,255,0.4);">Verifica di aver eseguito add_newsletter_table.sql</small></div>';
+  }
+}
+
+function copiaEmailIscritti() {
+  const success = document.getElementById('iscritti-success');
+  if (!allIscritti.length) { alert('Nessuna email da copiare.'); return; }
+  const testo = allIscritti.map(function (i) { return i.email; }).join(', ');
+  navigator.clipboard.writeText(testo).then(function () {
+    success.textContent = '✓ ' + allIscritti.length + ' email copiate negli appunti!';
+    success.className = 'success-msg show';
+    setTimeout(function () { success.className = 'success-msg'; }, 3000);
+  }).catch(function () {
+    alert('Copia negli appunti non riuscita. Email:\n\n' + testo);
+  });
+}
+
+function esportaIscrittiCSV() {
+  if (!allIscritti.length) { alert('Nessuna email da esportare.'); return; }
+  let csv = 'email,lingua,data_iscrizione\n';
+  allIscritti.forEach(function (i) {
+    csv += '"' + i.email + '","' + (i.lingua || '') + '","' + (i.created_at || '') + '"\n';
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'iscritti_newsletter_wga_' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function loadActivities() {
+  const loading = document.getElementById('activities-loading');
+  const empty = document.getElementById('activities-empty');
+  const list = document.getElementById('activities-list');
+  
+  loading.style.display = 'block';
+  empty.style.display = 'none';
+  list.innerHTML = '';
+  
+  try {
+    const data = await supabase('/rest/v1/activities?select=*&order=created_at.desc');
+    allActivities = data || [];
+    
+    loading.style.display = 'none';
+    
+    if (allActivities.length === 0) {
+      empty.style.display = 'block';
+    } else {
+      renderActivities(allActivities);
+    }
+  } catch (e) {
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.innerHTML = `
+      <div class="empty-icon">⚠️</div>
+      <p style="font-size:16px;font-weight:600;margin-bottom:8px;color:#ef4444;">Errore di connessione</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:20px;">${e.message}</p>
+      <button class="btn" onclick="loadActivities()">🔄 Riprova</button>
+      <p style="font-size:11px;margin-top:16px;color:rgba(255,255,255,0.3);">Verifica di aver eseguito supabase-reset.sql</p>
+    `;
+  }
+}
+
+function renderActivities(acts) {
+  const list = document.getElementById('activities-list');
+  list.innerHTML = '';
+  
+  const icons = {
+    food: '🍽️', spiagge: '🏖️', attrazioni: '⭐', bar: '🍹',
+    gelateria: '🍦', noleggio: '🚤', escursioni: '🥾',
+    servizi_spiaggia: '🏖️', negozio: '🛍️', eventi: '🎉',
+    locali_notturni: '🌙', salute: '❤️', sport: '⚽', pet: '🐾',
+    alloggio: '🏠'
+  };
+
+  acts.forEach(act => {
+    const card = document.createElement('div');
+    card.className = 'activity-card';
+    card.innerHTML = `
+      <div class="activity-icon"${act.foto ? ' style="background-image:url(\'' + act.foto + '\');background-size:cover;background-position:center;"' : ''}>${act.foto ? '' : (icons[act.categoria] || '📍')}</div>
+      <div class="activity-info">
+        <div class="activity-name">${act.nome}${act.in_evidenza ? ' <span title="In evidenza nella Home">⭐</span>' : ''}</div>
+        <div class="activity-desc">${act.descrizione || act.indirizzo || 'Nessuna descrizione'}</div>
+        <div class="activity-meta">
+          <span>📂 ${act.categoria}</span>
+          ${act.rating ? `<span>⭐ ${act.rating}</span>` : ''}
+          ${act.indirizzo ? `<span>📍 ${act.indirizzo}</span>` : ''}
+          ${act.telefono ? `<span>📞 ${act.telefono}</span>` : ''}
+          ${act.orario ? `<span>🕐 ${act.orario}</span>` : ''}
+          ${act.sito_web ? `<span>🌐 sito</span>` : ''}
+        </div>
+      </div>
+      <div class="activity-actions">
+        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editActivity(${act.id})" title="Modifica">✏️</button>
+        <button class="btn btn-danger btn-small" onclick="event.stopPropagation();deleteActivity(${act.id})" title="Elimina">🗑️</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function filterActivities() {
+  const search = document.getElementById('search-box').value.toLowerCase();
+  const cat = document.getElementById('filter-categoria').value;
+  
+  let filtered = allActivities;
+  
+  if (search) {
+    filtered = filtered.filter(a => 
+      a.nome.toLowerCase().includes(search) ||
+      (a.descrizione || '').toLowerCase().includes(search) ||
+      (a.indirizzo || '').toLowerCase().includes(search)
+    );
+  }
+  
+  if (cat) {
+    filtered = filtered.filter(a => a.categoria === cat);
+  }
+  
+  const list = document.getElementById('activities-list');
+  const empty = document.getElementById('activities-empty');
+  
+  if (filtered.length === 0 && allActivities.length > 0) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>Nessun risultato trovato</p></div>';
+  } else {
+    renderActivities(filtered);
+  }
+}
+
+function openModal(id = null) {
+  document.getElementById('activity-modal').classList.add('show');
+  document.getElementById('modal-title').textContent = id ? 'Modifica Attività' : 'Nuova Attività';
+  document.getElementById('activity-form').reset();
+  document.getElementById('activity-id').value = id || '';
+  document.getElementById('modal-success').className = 'success-msg';
+  document.getElementById('modal-error').className = 'error-msg';
+  currentTags = [];
+  renderTags();
+  
+  if (id) {
+    const act = allActivities.find(a => a.id === id);
+    if (act) {
+      document.querySelector('[name="nome"]').value = act.nome;
+      document.querySelector('[name="categoria"]').value = act.categoria;
+      document.querySelector('[name="google_maps_url"]').value = act.google_maps_url;
+      document.querySelector('[name="descrizione"]').value = act.descrizione || '';
+      document.querySelector('[name="indirizzo"]').value = act.indirizzo || '';
+      document.querySelector('[name="telefono"]').value = act.telefono || '';
+      document.querySelector('[name="foto"]').value = act.foto || '';
+      document.querySelector('[name="sito_web"]').value = act.sito_web || '';
+      document.querySelector('[name="orario"]').value = act.orario || '';
+      document.querySelector('[name="lat"]').value = act.lat != null ? act.lat : '';
+      document.querySelector('[name="lng"]').value = act.lng != null ? act.lng : '';
+      document.querySelector('[name="rating"]').value = act.rating || '';
+      document.getElementById('in-evidenza-checkbox').checked = !!act.in_evidenza;
+      currentTags = act.tags || [];
+      renderTags();
+    }
+  }
+}
+
+function closeModal() {
+  document.getElementById('activity-modal').classList.remove('show');
+}
+
+function handleTagInput(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const input = e.target;
+    const tag = input.value.trim();
+    if (tag && !currentTags.includes(tag)) {
+      currentTags.push(tag);
+      renderTags();
+      input.value = '';
+    }
+  }
+}
+
+function removeTag(tag) {
+  currentTags = currentTags.filter(t => t !== tag);
+  renderTags();
+}
+
+function renderTags() {
+  const container = document.getElementById('tag-container');
+  const input = document.getElementById('tag-input');
+  const hidden = document.getElementById('tags-hidden');
+  
+  container.querySelectorAll('.tag').forEach(el => el.remove());
+  
+  currentTags.forEach(tag => {
+    const tagEl = document.createElement('span');
+    tagEl.className = 'tag';
+    tagEl.innerHTML = `${tag} <button type="button" class="tag-remove" onclick="removeTag('${tag.replace(/'/g, "\\'")}')">×</button>`;
+    container.insertBefore(tagEl, input);
+  });
+  
+  hidden.value = JSON.stringify(currentTags);
+}
+
+async function saveActivity(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData.entries());
+  const id = data.id;
+  delete data.id;
+
+  data.in_evidenza = formData.get('in_evidenza') === 'on';
+
+  try {
+    data.tags = JSON.parse(data.tags);
+  } catch {
+    data.tags = [];
+  }
+  
+  if (data.rating) {
+    data.rating = parseFloat(data.rating);
+  } else {
+    delete data.rating;
+  }
+
+  if (data.lat) {
+    data.lat = parseFloat(data.lat);
+  } else {
+    delete data.lat;
+  }
+
+  if (data.lng) {
+    data.lng = parseFloat(data.lng);
+  } else {
+    delete data.lng;
+  }
+
+  Object.keys(data).forEach(key => {
+    if (data[key] === '') delete data[key];
+  });
+  
+  const success = document.getElementById('modal-success');
+  const error = document.getElementById('modal-error');
+  
+  success.className = 'success-msg';
+  error.className = 'error-msg';
+  
+  try {
+    if (id) {
+      await supabase(`/rest/v1/activities?id=eq.${id}`, 'PATCH', data);
+      success.textContent = '✓ Attività aggiornata con successo!';
+    } else {
+      await supabase('/rest/v1/activities', 'POST', data);
+      success.textContent = '✓ Attività creata con successo!';
+    }
+    
+    success.className = 'success-msg show';
+    
+    setTimeout(() => {
+      closeModal();
+      loadActivities();
+    }, 1500);
+  } catch (err) {
+    error.textContent = '✗ ' + err.message;
+    error.className = 'error-msg show';
+  }
+}
+
+async function deleteActivity(id) {
+  const act = allActivities.find(a => a.id === id);
+  if (!confirm(`Eliminare "${act.nome}"?\n\nQuesta azione non può essere annullata.`)) return;
+  
+  try {
+    await supabase(`/rest/v1/activities?id=eq.${id}`, 'DELETE');
+    loadActivities();
+  } catch (e) {
+    alert('Errore: ' + e.message);
+  }
+}
+
+function editActivity(id) {
+  openModal(id);
+}
+
+/* ═══ IMPOSTAZIONI REPORT SETTIMANALE ═══
+   Letto/scritto dalla funzione weekly-report per decidere se e quando
+   inviare il report automatico (gestito dal pannello qui sopra). */
+async function loadReportSettings() {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/weekly_report_settings?id=eq.1&select=enabled,giorno_settimana', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const rows = await res.json();
+    const s = rows[0] || { enabled: true, giorno_settimana: 0 };
+    document.getElementById('report-enabled-checkbox').checked = !!s.enabled;
+    document.getElementById('report-giorno-select').value = String(s.giorno_settimana);
+  } catch (e) {
+    console.error('Impossibile caricare le impostazioni report', e);
+  }
+}
+
+async function saveReportSettings() {
+  const success = document.getElementById('report-settings-success');
+  const error = document.getElementById('report-settings-error');
+  success.className = 'success-msg';
+  error.className = 'error-msg';
+  const enabled = document.getElementById('report-enabled-checkbox').checked;
+  const giorno = parseInt(document.getElementById('report-giorno-select').value, 10);
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/weekly_report_settings?id=eq.1', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ enabled: enabled, giorno_settimana: giorno, updated_at: new Date().toISOString() })
+    });
+    if (!res.ok) throw new Error('Errore ' + res.status);
+    success.textContent = '✓ Impostazioni salvate';
+    success.className = 'success-msg show';
+    setTimeout(function () { success.className = 'success-msg'; }, 2500);
+  } catch (e) {
+    error.textContent = '✗ Errore salvataggio: ' + e.message;
+    error.className = 'error-msg show';
+  }
+}
+
+// Init
+loadActivities();
+loadIscritti();
+loadReportSettings();
+</script>
+</body>
+</html>
