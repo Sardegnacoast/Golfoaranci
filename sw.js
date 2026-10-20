@@ -1,104 +1,53 @@
-const CACHE_NAME = 'wga-v3';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/LOGO_WGA_orig.jpeg',
-  '/bg_golfo_rot.jpg',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/hotel_gabbiano.jpg',
-  '/hotel_margherita.jpg',
-  '/hotel_caddinas.jpg',
-  '/hotel_castello.jpg',
-  '/hotel_maria.jpg',
-  '/airbnb_bilo.jpg',
-  '/airbnb_paradiso.jpg',
-  '/airbnb_relax.jpg',
-  '/airbnb_perlacea_relax.jpg',
-  '/noleggio_driver.jpg',
-  '/noleggio_smeralda.jpg',
-];
+/* Service worker — Welcome Golfo Aranci
+   Rete prima, cache solo come fallback offline + gestione tap sulle notifiche locali.
 
-// Install
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
+   IMPORTANTE (bug corretto il 24 Sett 2026): la versione precedente usava una
+   strategia "cache-first" che, dopo il primo avvio, continuava a servire per
+   sempre la index.html salvata in cache quella prima volta — anche dopo ogni
+   aggiornamento pubblicato su Play Store/App Store, perché il Service Worker
+   non veniva mai davvero invalidato (il fetch handler controllava la cache
+   PRIMA della rete). Chi aveva installato l'app da un po' restava bloccato su
+   una versione vecchia del codice (bandierine lingua incluse) a prescindere
+   da quante release nuove pubblicavamo. Ora la rete ha sempre la priorità:
+   la cache serve solo quando il dispositivo è offline. */
+
+const WGA_CACHE = 'wga-v5';
+
+self.addEventListener('install', function (e) {
   self.skipWaiting();
 });
 
-// Activate
-self.addEventListener('activate', e => {
+self.addEventListener('activate', function (e) {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    caches.keys().then(function (keys) {
+      return Promise.all(keys.filter(function (k) { return k !== WGA_CACHE; }).map(function (k) { return caches.delete(k); }));
+    })
   );
   self.clients.claim();
 });
 
-// Fetch - cache first, then network
-self.addEventListener('fetch', e => {
+self.addEventListener('fetch', function (e) {
+  if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(response => {
-        if (!response || response.status !== 200 || response.type !== 'basic') return response;
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        return response;
-      });
-    }).catch(() => caches.match('/index.html'))
-  );
-});
-
-// Background Sync
-self.addEventListener('sync', e => {
-  if (e.tag === 'sync-data') {
-    e.waitUntil(Promise.resolve());
-  }
-});
-
-// Periodic Background Sync
-self.addEventListener('periodicsync', e => {
-  if (e.tag === 'update-content') {
-    e.waitUntil(
-      caches.open(CACHE_NAME).then(cache => cache.add('/index.html'))
-    );
-  }
-});
-
-// Push notifications (per notifiche future da server, non usato dalle notifiche locali)
-self.addEventListener('push', e => {
-  const data = e.data ? e.data.json() : {
-    title: 'Welcome Golfo Aranci',
-    body: 'Nuovi aggiornamenti disponibili! 🌊'
-  };
-  e.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: '/icon-192.png',
-      badge: '/icon-72.png'
+    fetch(e.request).then(function (res) {
+      const resClone = res.clone();
+      caches.open(WGA_CACHE).then(function (c) { c.put(e.request, resClone); }).catch(function () {});
+      return res;
+    }).catch(function () {
+      return caches.match(e.request);
     })
   );
 });
 
-// Notification click - riporta in focus una finestra già aperta se esiste,
-// altrimenti ne apre una nuova. Gestisce sia le notifiche push che quelle locali.
-self.addEventListener('notificationclick', e => {
+/* Quando l'utente tocca una notifica, apre/mette in primo piano l'app */
+self.addEventListener('notificationclick', function (e) {
   e.notification.close();
-
   e.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+    self.clients.matchAll({ type: 'window' }).then(function (clientList) {
       for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          return client.focus();
-        }
+        if ('focus' in client) return client.focus();
       }
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
+      if (self.clients.openWindow) return self.clients.openWindow('/');
     })
   );
 });
