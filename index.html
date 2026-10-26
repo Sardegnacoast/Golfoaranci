@@ -18,11 +18,9 @@
   --glass-hover: rgba(255,255,255,0.18);
   --text-white: #ffffff;
   --text-soft:  rgba(255,255,255,0.75);
-  --text-dim:   rgba(255,255,255,0.50);
-  --orange:     #FF7B35;
+.beach-scroll { display:flex; flex-direction:column; gap:16px; padding:0 20px 4px; }  --orange:     #FF7B35;
   --orange-glow:rgba(255,123,53,0.35);
-  --teal:       #2DD4BF;
-  --teal-glow:  rgba(45,212,191,0.25);
+.beach-scroll { display:flex; flex-direction:column; gap:16px; padding:0 20px 4px; }  --teal-glow:  rgba(45,212,191,0.25);
   --shadow:     rgba(0,0,0,0.25);
 }
 
@@ -83,7 +81,7 @@ html, body {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:54px 20px 16px;
+  padding:66px 20px 16px;
 }
 
 .logo-glass {
@@ -190,7 +188,7 @@ html, body {
 
 /* ═══ HERO TITLE ═══ */
 .hero-block {
-  padding:20px 20px 28px;
+  padding:32px 20px 40px;
 }
 
 .hero-label {
@@ -332,7 +330,7 @@ html, body {
 .bc-lime    { fill:rgba(140,210,40,0.82); }
 
 /* ═══ FEATURED CARDS ═══ */
-.feat-scroll { display:flex; gap:14px; overflow-x:auto; padding:0 20px 4px; scroll-snap-type:x mandatory; }
+.feat-scroll { display:flex; flex-direction:column; gap:16px; padding:0 20px 4px; }
 .feat-scroll::-webkit-scrollbar { display:none; }
 
 .feat-card {
@@ -351,7 +349,7 @@ html, body {
 .feat-card:active { transform:scale(0.96); }
 
 .feat-img {
-  height:110px;
+  height:200px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -370,9 +368,9 @@ html, body {
   padding:3px 9px; border-radius:20px;
   letter-spacing:.04em;
 }
-.feat-info { padding:12px 14px 14px; }
-.feat-name { font-weight:800; font-size:14px; color:var(--text-white); margin-bottom:4px; }
-.feat-cat  { font-size:11px; color:var(--text-dim); }
+.feat-info { padding:16px 18px 18px; }
+.feat-name { font-weight:800; font-size:17px; color:var(--text-white); margin-bottom:4px; }
+.feat-cat  { font-size:12px; color:var(--text-dim); }
 .feat-card-promo { border:1px dashed rgba(255,190,60,0.45); }
 .feat-promo-btn {
   display:inline-block;
@@ -393,8 +391,8 @@ html, body {
 /* ═══ SPONSOR / SLOT PREMIUM (box pubblicitaria prioritaria) ═══ */
 .sponsor-slot {
   min-width:180px;
-  width:180px;
-  height:180px;
+  width:100%;
+  height:260px;
   border-radius:22px;
   display:flex;
   flex-direction:column;
@@ -443,7 +441,7 @@ html, body {
   text-align:center;
 }
 .sponsor-star {
-  font-size:24px;
+  font-size:34px;
   filter:drop-shadow(0 0 8px rgba(255,200,50,0.6));
 }
 .sponsor-title {
@@ -462,9 +460,9 @@ html, body {
   display:inline-block;
   background:linear-gradient(135deg,#f59e0b,#f97316);
   color:#1a0f00;
-  font-size:9px;
+  font-size:11px;
   font-weight:800;
-  padding:5px 13px;
+  padding:8px 18px;
   border-radius:20px;
   border:none;
   text-transform:uppercase;
@@ -478,12 +476,12 @@ html, body {
 .sponsor-badge:active { transform:scale(0.95); }
 
 /* ═══ BEACH CARDS ═══ */
-.beach-scroll { display:flex; gap:14px; overflow-x:auto; padding:0 20px 4px; scroll-snap-type:x mandatory; }
+.beach-scroll { display:flex; flex-direction:column; gap:16px; padding:0 20px 4px; }
 .beach-scroll::-webkit-scrollbar { display:none; }
 
 .beach-card {
-  min-width:230px;
-  max-width:230px;
+
+  width:100%;
   border-radius:22px;
   overflow:hidden;
   background:var(--glass-bg);
@@ -537,14 +535,14 @@ html, body {
 /* ═══ SERVIZI GRID ═══ */
 .serv-grid {
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
   padding:0 20px;
 }
 
 .serv-tile {
   border-radius:20px;
-  padding:16px 12px 14px;
+  padding:28px 16px 24px;
   background:var(--glass-bg);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
@@ -569,7 +567,7 @@ html, body {
 }
 
 .serv-tile-icon {
-  width:44px; height:44px;
+  width:72px; height:72px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -920,18 +918,18 @@ html, body {
   </div>
   <div style="height:20px;"></div>
   <div class="serv-grid">
-    <div class="serv-tile" onclick="wgaOpenCategoria('food')"><div class="serv-tile-icon" style="background:rgba(255,80,80,0.20);"><svg viewBox="0 0 24 24" fill="rgba(255,130,130,0.95)" style="width:26px;height:26px;"><path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-8-15.03-8-15.03 0h15.03zM1.02 17h15v2H1z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-food">Food</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('bar')"><div class="serv-tile-icon" style="background:rgba(45,212,191,0.20);"><svg viewBox="0 0 24 24" fill="rgba(80,230,210,0.95)" style="width:26px;height:26px;"><path d="M20 3H4v2l6 7v5H7v2h10v-2h-3v-5l6-7V3zm-8 7.5L6.5 5h11L12 10.5z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-bar">Bar &amp; Cocktail</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('gelateria')"><div class="serv-tile-icon" style="background:rgba(255,100,150,0.20);"><svg viewBox="0 0 24 24" fill="rgba(255,150,180,0.95)" style="width:26px;height:26px;"><path d="M12 3C9.24 3 7 5.24 7 8c0 2.43 1.68 4.46 3.93 5.02l-2.08 7.38c-.07.25.13.5.4.5h5.49c.27 0 .48-.25.4-.5l-2.07-7.37C15.32 12.47 17 10.44 17 8c0-2.76-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-gel">Gelateria</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('negozio')"><div class="serv-tile-icon" style="background:rgba(60,200,100,0.20);"><svg viewBox="0 0 24 24" fill="rgba(100,220,140,0.95)" style="width:26px;height:26px;"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-neg">Negozio</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('noleggio')"><div class="serv-tile-icon" style="background:rgba(40,200,230,0.20);"><svg viewBox="0 0 24 24" fill="rgba(80,220,240,0.95)" style="width:26px;height:26px;"><path d="M20 21c-1.39 0-2.78-.47-4-1.32-2.44 1.71-5.56 1.71-8 0C6.78 20.53 5.39 21 4 21H2v2h2c1.38 0 2.74-.35 4-.99 2.52 1.29 5.48 1.29 8 0 1.26.64 2.62.99 4 .99h2v-2h-2zM3.95 19H4c1.6 0 3.02-.88 4-2 .98 1.12 2.4 2 4 2s3.02-.88 4-2c.98 1.12 2.4 2 4 2h.05l1.89-6.68c.08-.26.06-.54-.06-.78s-.34-.42-.6-.5L20 10.62V6c0-1.1-.9-2-2-2h-3V1H9v3H6c-1.1 0-2 .9-2 2v4.62l-1.29.42c-.26.08-.48.26-.6.5s-.14.52-.06.78L3.95 19zM6 6h12v3.97L12 8 6 9.97V6z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-nol">Noleggio &amp; Transfer</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('eventi')"><div class="serv-tile-icon" style="background:rgba(255,123,53,0.25);"><svg viewBox="0 0 24 24" fill="rgba(255,160,100,0.95)" style="width:26px;height:26px;"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-evt">Evento</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('attrazioni')"><div class="serv-tile-icon" style="background:rgba(200,100,240,0.25);"><svg viewBox="0 0 24 24" fill="rgba(220,140,255,0.95)" style="width:26px;height:26px;"><path d="M12 2L9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-attr">Attrazione</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('sport')"><div class="serv-tile-icon" style="background:rgba(70,180,100,0.22);font-size:22px;line-height:1;">⚽</div><div class="serv-tile-label" data-i18n="srv-n-sport">Sport</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('salute')"><div class="serv-tile-icon" style="background:rgba(255,90,120,0.22);font-size:22px;line-height:1;">❤️</div><div class="serv-tile-label" data-i18n="srv-n-salute">Salute</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('pet')"><div class="serv-tile-icon" style="background:rgba(200,150,90,0.22);font-size:22px;line-height:1;">🐾</div><div class="serv-tile-label" data-i18n="srv-n-pet">Pet</div></div>
-    <div class="serv-tile" onclick="wgaOpenCategoria('escursioni')"><div class="serv-tile-icon" style="background:rgba(140,210,40,0.20);"><svg viewBox="0 0 24 24" fill="rgba(180,230,80,0.95)" style="width:26px;height:26px;"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-esc">Escursioni</div></div>
-    <div class="serv-tile" onclick="goTo('emergenze')" style="background:rgba(210,30,30,0.16);border-color:rgba(255,70,70,0.35);"><div class="serv-tile-icon" style="background:rgba(255,50,50,0.28);font-size:22px;line-height:1;">🚨</div><div class="serv-tile-label" style="color:rgba(255,150,150,0.95);" data-i18n="srv-n-sos">SOS</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('food')"><div class="serv-tile-icon" style="background:rgba(255,80,80,0.20);"><svg viewBox="0 0 24 24" fill="rgba(255,130,130,0.95)" style="width:38px;height:38px;"><path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-8-15.03-8-15.03 0h15.03zM1.02 17h15v2H1z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-food">Food</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('bar')"><div class="serv-tile-icon" style="background:rgba(45,212,191,0.20);"><svg viewBox="0 0 24 24" fill="rgba(80,230,210,0.95)" style="width:38px;height:38px;"><path d="M20 3H4v2l6 7v5H7v2h10v-2h-3v-5l6-7V3zm-8 7.5L6.5 5h11L12 10.5z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-bar">Bar &amp; Cocktail</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('gelateria')"><div class="serv-tile-icon" style="background:rgba(255,100,150,0.20);"><svg viewBox="0 0 24 24" fill="rgba(255,150,180,0.95)" style="width:38px;height:38px;"><path d="M12 3C9.24 3 7 5.24 7 8c0 2.43 1.68 4.46 3.93 5.02l-2.08 7.38c-.07.25.13.5.4.5h5.49c.27 0 .48-.25.4-.5l-2.07-7.37C15.32 12.47 17 10.44 17 8c0-2.76-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-gel">Gelateria</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('negozio')"><div class="serv-tile-icon" style="background:rgba(60,200,100,0.20);"><svg viewBox="0 0 24 24" fill="rgba(100,220,140,0.95)" style="width:38px;height:38px;"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-neg">Negozio</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('noleggio')"><div class="serv-tile-icon" style="background:rgba(40,200,230,0.20);"><svg viewBox="0 0 24 24" fill="rgba(80,220,240,0.95)" style="width:38px;height:38px;"><path d="M20 21c-1.39 0-2.78-.47-4-1.32-2.44 1.71-5.56 1.71-8 0C6.78 20.53 5.39 21 4 21H2v2h2c1.38 0 2.74-.35 4-.99 2.52 1.29 5.48 1.29 8 0 1.26.64 2.62.99 4 .99h2v-2h-2zM3.95 19H4c1.6 0 3.02-.88 4-2 .98 1.12 2.4 2 4 2s3.02-.88 4-2c.98 1.12 2.4 2 4 2h.05l1.89-6.68c.08-.26.06-.54-.06-.78s-.34-.42-.6-.5L20 10.62V6c0-1.1-.9-2-2-2h-3V1H9v3H6c-1.1 0-2 .9-2 2v4.62l-1.29.42c-.26.08-.48.26-.6.5s-.14.52-.06.78L3.95 19zM6 6h12v3.97L12 8 6 9.97V6z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-nol">Noleggio &amp; Transfer</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('eventi')"><div class="serv-tile-icon" style="background:rgba(255,123,53,0.25);"><svg viewBox="0 0 24 24" fill="rgba(255,160,100,0.95)" style="width:38px;height:38px;"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-evt">Evento</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('attrazioni')"><div class="serv-tile-icon" style="background:rgba(200,100,240,0.25);"><svg viewBox="0 0 24 24" fill="rgba(220,140,255,0.95)" style="width:38px;height:38px;"><path d="M12 2L9.19 8.62 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-attr">Attrazione</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('sport')"><div class="serv-tile-icon" style="background:rgba(70,180,100,0.22);font-size:34px;line-height:1;">⚽</div><div class="serv-tile-label" data-i18n="srv-n-sport">Sport</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('salute')"><div class="serv-tile-icon" style="background:rgba(255,90,120,0.22);font-size:34px;line-height:1;">❤️</div><div class="serv-tile-label" data-i18n="srv-n-salute">Salute</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('pet')"><div class="serv-tile-icon" style="background:rgba(200,150,90,0.22);font-size:34px;line-height:1;">🐾</div><div class="serv-tile-label" data-i18n="srv-n-pet">Pet</div></div>
+    <div class="serv-tile" onclick="wgaOpenCategoria('escursioni')"><div class="serv-tile-icon" style="background:rgba(140,210,40,0.20);"><svg viewBox="0 0 24 24" fill="rgba(180,230,80,0.95)" style="width:38px;height:38px;"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg></div><div class="serv-tile-label" data-i18n="srv-n-esc">Escursioni</div></div>
+    <div class="serv-tile" onclick="goTo('emergenze')" style="background:rgba(210,30,30,0.16);border-color:rgba(255,70,70,0.35);"><div class="serv-tile-icon" style="background:rgba(255,50,50,0.28);font-size:34px;line-height:1;">🚨</div><div class="serv-tile-label" style="color:rgba(255,150,150,0.95);" data-i18n="srv-n-sos">SOS</div></div>
   </div>
   <div style="height:20px;"></div>
 </div>
