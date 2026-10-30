@@ -99,6 +99,30 @@ function wgaAppleMapsUrl(googleUrl) {
   return '';
 }
 
+/* Costruisce SEMPRE la coppia di link Google Maps + Apple Maps per un'attivita',
+   in ordine di affidabilita': coordinate lat/lng → link maps con daddr/q →
+   ricerca per nome + indirizzo + "Golfo Aranci". Cosi' nessuna scheda resta
+   con solo Google Maps (prima, se il link non aveva un pattern riconosciuto,
+   Apple Maps spariva — es. Driver in Cravatta, 30 Ott 2026). */
+function wgaMapsUrls(act) {
+  const lat = parseFloat(act.lat), lng = parseFloat(act.lng);
+  if (!isNaN(lat) && !isNaN(lng)) {
+    const ll = lat + ',' + lng;
+    return { google: 'https://maps.google.com/maps?daddr=' + ll, apple: 'https://maps.apple.com/?daddr=' + ll };
+  }
+  const g = wgaSafeUrl(act.link || act.google_maps_url || '');
+  const isMapsLink = g && /google\.[a-z.]+\/maps|maps\.google\.|goo\.gl\/maps|maps\.app\.goo\.gl/i.test(g);
+  const appleFromG = isMapsLink ? wgaAppleMapsUrl(g) : '';
+  if (isMapsLink && appleFromG) return { google: g, apple: appleFromG };
+  const q = [act.nome, act.indirizzo, 'Golfo Aranci'].filter(Boolean).join(', ');
+  if (!act.nome) return { google: '', apple: '' };
+  const qe = encodeURIComponent(q);
+  return {
+    google: isMapsLink ? g : 'https://maps.google.com/?q=' + qe,
+    apple: 'https://maps.apple.com/?q=' + qe
+  };
+}
+
 async function wgaFetchActivities() {
   try {
     const res = await fetch(WGA_SUPABASE_URL + '/rest/v1/activities?select=*&order=created_at.desc', {
@@ -428,8 +452,12 @@ function wgaOpenDetail(act) {
   if (act.telefono) {
     contactsHtml += wgaContactRowHtml('rgba(45,212,191,0.2)', WGA_SVG_PHONE, 'Telefono', act.telefono, 'tel:' + String(act.telefono).replace(/[^0-9+]/g, ''));
   }
-  if (act.indirizzo && wgaSafeUrl(act.google_maps_url)) {
-    contactsHtml += wgaContactRowHtml('rgba(100,150,255,0.2)', WGA_SVG_MAP_PIN, 'Indirizzo', act.indirizzo, act.google_maps_url);
+  if (act.indirizzo) {
+    /* Riga indirizzo: su iPhone/iPad apre Apple Maps (mappa nativa), altrove Google Maps */
+    const addrMaps = wgaMapsUrls(act);
+    const isIOS = (window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios') || /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const addrHref = isIOS ? addrMaps.apple : addrMaps.google;
+    if (addrHref) contactsHtml += wgaContactRowHtml('rgba(100,150,255,0.2)', WGA_SVG_MAP_PIN, 'Indirizzo', act.indirizzo, addrHref);
   }
   contacts.innerHTML = contactsHtml;
   contactsWrap.style.display = contactsHtml ? '' : 'none';
@@ -450,23 +478,19 @@ function wgaOpenDetail(act) {
      la mappa nativa iOS, non solo una di terze parti) */
   const mapsWrap = document.getElementById('wga-detail-maps-wrap');
   const mapsLink = document.getElementById('wga-detail-maps-link');
-  const mapsHref = wgaSafeUrl(act.link || act.google_maps_url || '');
-  if (mapsHref) {
-    mapsLink.href = mapsHref;
-    mapsWrap.style.display = '';
-  } else {
-    mapsWrap.style.display = 'none';
-  }
   const appleMapsWrap = document.getElementById('wga-detail-maps-apple-wrap');
   const appleMapsLink = document.getElementById('wga-detail-maps-apple-link');
-  const appleMapsHref = wgaAppleMapsUrl(act.link || act.google_maps_url || '');
-  if (appleMapsLink) {
-    if (appleMapsHref) {
-      appleMapsLink.href = appleMapsHref;
-      appleMapsWrap.style.display = '';
-    } else {
-      appleMapsWrap.style.display = 'none';
-    }
+  const maps = wgaMapsUrls(act);
+  /* Google e Apple Maps vanno sempre in coppia: se c'e' l'uno c'e' anche l'altro
+     (Apple, Guideline 4 — mai solo Google Maps). */
+  if (maps.google && maps.apple) {
+    mapsLink.href = maps.google;
+    appleMapsLink.href = maps.apple;
+    mapsWrap.style.display = '';
+    appleMapsWrap.style.display = '';
+  } else {
+    mapsWrap.style.display = 'none';
+    appleMapsWrap.style.display = 'none';
   }
 
   /* Condividi */
@@ -510,7 +534,12 @@ async function wgaLoadDynamicActivities() {
      (renderizzate da wgaRenderStaticBeaches all'avvio); qui si aggiungono in coda solo
      eventuali spiagge extra caricate da Supabase, senza mai svuotare la lista statica. */
   if (beachScroll) {
-    const beaches = byCategory.spiagge || [];
+    /* Escludi le righe Supabase che duplicano una spiaggia ufficiale statica (stesso
+       nome): prima Cala Moresca e Cala Sabina comparivano due volte, la seconda
+       senza foto (30 Ott 2026). */
+    const norm = function (t) { return String(t || '').trim().toLowerCase(); };
+    const ufficiali = WGA_SPIAGGE_UFFICIALI.map(function (b) { return norm(b.nome); });
+    const beaches = (byCategory.spiagge || []).filter(function (b) { return ufficiali.indexOf(norm(b.nome)) === -1; });
     if (beaches.length) {
       const startIndex = WGA_SPIAGGE_UFFICIALI.length;
       beaches.forEach(function (act, i) { beachScroll.appendChild(wgaBuildBeachCard(act, startIndex + i)); });
@@ -580,21 +609,25 @@ function wgaBuildPromoSlotCard(title, subtitle) {
    esterno invece di aprire il contatto per comprare lo slot — usata quando uno slot
    pubblicitario e' gia' stato venduto a un'attivita' reale (es. Schmukler Real Estate). */
 function wgaBuildSponsorAdCard(title, subtitle, url) {
-  const card = document.createElement('div');
+  /* Link vero (<a href target=_blank>) e non window.open(): dentro l'app
+     nativa (Capacitor/WKWebView) window.open da un listener JS puo' essere
+     ignorato, mentre un anchor esterno viene sempre aperto nel browser di
+     sistema — stesso meccanismo dei pulsanti "Apri in Google/Apple Maps". */
+  const card = document.createElement('a');
   card.className = 'sponsor-slot';
+  card.href = wgaSafeUrl(url) || '#';
+  card.target = '_blank';
+  card.rel = 'noopener';
+  card.style.textDecoration = 'none';
+  card.style.color = 'inherit';
   card.innerHTML =
     '<div class="sponsor-inner">' +
       '<div class="sponsor-star">⭐</div>' +
       '<div class="sponsor-title">' + wgaEsc(title) + '</div>' +
       '<div class="sponsor-sub">' + wgaEsc(subtitle) + '</div>' +
-      '<button type="button" class="sponsor-badge">Scopri di più</button>' +
+      '<span class="sponsor-badge">Scopri di più</span>' +
     '</div>';
-  const openLink = function (e) {
-    if (e) e.stopPropagation();
-    window.open(url, '_blank', 'noopener');
-  };
-  card.querySelector('.sponsor-badge').addEventListener('click', openLink);
-  card.addEventListener('click', openLink);
+  card.addEventListener('click', function () { wgaTrackClick(title, 'sponsor'); });
   return card;
 }
 
