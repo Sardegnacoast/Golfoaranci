@@ -37,7 +37,7 @@ const WGA_CAT_META = {
   attrazioni:        { icon: '⭐', label: 'Attrazioni' },
   bar:               { icon: '🍹', label: 'Bar' },
   gelateria:         { icon: '🍦', label: 'Gelateria' },
-  noleggio:          { icon: '🚤', label: 'Noleggio' },
+  noleggio:          { icon: '🚗', label: 'Noleggio' },
   escursioni:        { icon: '🥾', label: 'Escursioni' },
   servizi_spiaggia:  { icon: '🏖️', label: 'Servizi Spiaggia' },
   negozio:           { icon: '🛍️', label: 'Negozio' },
@@ -104,6 +104,7 @@ async function wgaFetchActivities() {
    dal sito del Comune), non gestito da wga-admin. Eventuali spiagge aggiunte
    in Supabase (categoria "spiagge") vengono mostrate in coda a queste. */
 const WGA_SPIAGGE_UFFICIALI = [
+  { nome: 'Cala Moresca', descrizione: 'Incontaminata · Snorkeling', dettaglio: "Piccola baia incontaminata con pineta. Acque verde smeraldo, ideale per lo snorkeling. Di fronte si trovano i Baracconi e l'isolotto di Figarolo. Meta di appassionati di immersioni.", tags: ['Pineta', 'Snorkeling', 'Parcheggio', 'Bar'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/11d5e509ce8c2e8f2c25a179f0e77210d08ef847/750/-1/', link: 'https://maps.google.com/maps?daddr=40.9798981,9.6679688', categoria: 'spiagge' },
   { nome: 'Terrata', descrizione: 'Sabbia fine · Acque turchesi', dettaglio: "Piccola baia di sabbia bianca e fine, circondata da vegetazione mediterranea. Con il suo mare turchese e poco profondo, è ideale per famiglie e bambini. La spiaggia ha un fondale misto di sabbia e rocce con accesso comodo tramite sentiero. È libera e senza limitazioni d'ingresso.", tags: ['Libera', 'Sentiero di accesso', 'Fondale basso', 'Ideale famiglie'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/49da1e1818fbb4e02c2ed569f075b167f8b2ad32/750/-1/', link: 'https://maps.google.com/maps?daddr=40.9776489,9.582638', categoria: 'spiagge' },
   { nome: 'Cala Sassari', descrizione: '500m · Sabbia dorata', dettaglio: 'Lunga circa 500 metri, sabbia dorata circondata dalla macchia mediterranea. Il mare offre riflessi verde smeraldo e turchesi. Fondale basso e sabbioso, ideale per famiglie. Ben riparata dai venti, offre vari servizi.', tags: ['Parcheggio', 'Bar / Ristorante', 'Noleggio sdraio', 'Accessibile disabili'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/94bdc4d5bed196f7588600d336d2e8355d4bd814/750/-1/', link: 'https://maps.google.com/maps?daddr=40.9877,9.5847', categoria: 'spiagge' },
   { nome: 'Spiaggia Bianca', descrizione: 'Acque turchesi · Molto vivace', dettaglio: 'Forma ad arco con acque turchesi e sabbia bianchissima. Fondale basso, molto popolare anche la sera in estate. Servita da parcheggio, punto ristoro e noleggio attrezzature.', tags: ['Parcheggio', 'Bar / Ristorante', 'Noleggio ombrelloni', 'Passerella disabili'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/4b048383def57dddfc5effda958b061f87bd4b1d/750/-1/', link: 'https://maps.google.com/maps?daddr=40.9908,9.5914', categoria: 'spiagge' },
@@ -111,7 +112,6 @@ const WGA_SPIAGGE_UFFICIALI = [
   { nome: '4a e 5a Spiaggia', descrizione: 'Ideale famiglie · Servizi completi', dettaglio: 'Due baie adiacenti con fondale basso e sabbioso, perfette per famiglie con bambini. Circondate dalla macchia mediterranea, offrono stabilimenti balneari e servizi completi.', tags: ['Stabilimento balneare', 'Parcheggio', 'Bar', 'Fondale basso'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/9fa6b0b1684af49c32c544268639e1906525c5c7/750/-1/', link: 'https://maps.google.com/maps?daddr=41.0017,9.6086', categoria: 'spiagge' },
   { nome: '3a Spiaggia', descrizione: 'La più bella del centro', dettaglio: 'La più bella delle cinque spiagge cittadine. Sabbia bianca e morbida, acque verde-azzurre con fondale sabbioso e basso. La più visitata di Golfo Aranci in alta stagione.', tags: ['Stabilimento balneare', 'Bar / Ristorante', 'Doccia', 'Parcheggio'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/f81de27820106c8d91c76857c98f3b629e57a42a/750/-1/', link: 'https://maps.google.com/maps?daddr=41.0038,9.6130', categoria: 'spiagge' },
   { nome: '1a e 2a Spiaggia', descrizione: 'Centro città · Lungomare', dettaglio: 'Le spiagge del centro abitato, animate e con tutti i servizi. Facilmente raggiungibili a piedi dal Lungomare. Molto frequentate in alta stagione con stabilimenti e ristoranti.', tags: ['A piedi dal centro', 'Stabilimento', 'Bar / Ristorante', 'Accessibile'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/444ec283b58ed09a7ea19b0127128a8e5ec2a6aa/750/-1/', link: 'https://maps.google.com/maps?daddr=41.0023,9.6199', categoria: 'spiagge' },
-  { nome: 'Cala Moresca', descrizione: 'Incontaminata · Snorkeling', dettaglio: "Piccola baia incontaminata con pineta. Acque verde smeraldo, ideale per lo snorkeling. Di fronte si trovano i Baracconi e l'isolotto di Figarolo. Meta di appassionati di immersioni.", tags: ['Pineta', 'Snorkeling', 'Parcheggio', 'Bar'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/11d5e509ce8c2e8f2c25a179f0e77210d08ef847/750/-1/', link: 'https://maps.google.com/maps?daddr=40.9798981,9.6679688', categoria: 'spiagge' },
   { nome: 'Figarolo', descrizione: 'Isolotto · Solo in barca', dettaglio: 'Isolotto di fronte alla costa di Golfo Aranci, raggiungibile solo in barca. Sede del Centro Immersioni Figarolo. Natura incontaminata, fondali spettacolari e panorama su Capo Figari.', tags: ['Solo in barca', 'Centro immersioni', 'Natura incontaminata', 'Panorama Capo Figari'], foto: 'https://cmsphoto.ww-cdn.com/resizeapi/9eace40e15479307f8fc7fd1e83c3e1739f5c9dc/750/-1/', link: 'https://maps.google.com/maps?daddr=40.9837,9.6397', categoria: 'spiagge' }
 ];
 
@@ -202,32 +202,31 @@ function wgaBuildBeachCard(act, index) {
   return card;
 }
 
-/* Card generica per le altre categorie (mostrata nella schermata Servizi) */
-function wgaBuildActivityCard(act) {
+/* Card generica per le altre categorie (mostrata nella schermata Servizi) — stesso
+   stile foto a tutta larghezza delle card Spiagge/Dormire (28 Ott 2026) */
+function wgaBuildActivityCard(act, index) {
   const meta = WGA_CAT_META[act.categoria] || { icon: '📍', label: act.categoria };
   const card = document.createElement('div');
-  card.className = 'wga-act-card';
+  card.className = 'beach-card';
   const desc = act.descrizione || act.indirizzo || '';
-  const ratingHtml = act.rating ? '<div class="wga-act-rating">★ ' + wgaEsc(act.rating) + '</div>' : '';
+  const bg = WGA_BEACH_BG[(index || 0) % WGA_BEACH_BG.length];
   const imgStyle = wgaSafeBgStyle(act.foto);
   const imgContent = imgStyle ? '' : meta.icon;
+  const tag = act.rating ? '★ ' + act.rating : '📍 Vedi dettagli';
   card.innerHTML =
-    '<div class="wga-act-img" style="' + imgStyle + '">' + imgContent + '</div>' +
-    '<div class="wga-act-info">' +
-      '<div class="wga-act-name">' + wgaEsc(act.nome) + '</div>' +
-      '<div class="wga-act-desc">' + wgaEsc(desc) + '</div>' +
-      ratingHtml +
-      '<div class="wga-act-actions">' +
-        (wgaSafeUrl(act.google_maps_url) ? '<a class="wga-act-map-link" target="_blank" rel="noopener" href="' + wgaEsc(act.google_maps_url) + '">📍 Mappa</a>' : '<span></span>') +
-        '<button type="button" class="wga-act-share-btn" aria-label="Condividi ' + wgaEsc(act.nome) + '">↗</button>' +
+    '<div class="beach-img ' + bg + '" style="font-size:38px;' + imgStyle + '">' + imgContent + '</div>' +
+    '<div class="beach-info">' +
+      '<div class="beach-name">' + wgaEsc(act.nome) + '</div>' +
+      '<div class="beach-desc">' + wgaEsc(desc) + '</div>' +
+      '<div class="beach-actions">' +
+        '<span class="beach-dist">' + wgaEsc(tag) + '</span>' +
+        '<button type="button" class="beach-share-btn" aria-label="Condividi ' + wgaEsc(act.nome) + '">↗</button>' +
       '</div>' +
     '</div>';
-  card.querySelector('.wga-act-share-btn').addEventListener('click', function (e) {
+  card.querySelector('.beach-share-btn').addEventListener('click', function (e) {
     e.stopPropagation();
     shareItem(act.nome, desc, act.google_maps_url || '');
   });
-  const mapLink = card.querySelector('.wga-act-map-link');
-  if (mapLink) mapLink.addEventListener('click', function (e) { e.stopPropagation(); });
   /* Regola base: click sulla card apre Google Maps dell'attività (24 Sett 2026) */
   card.addEventListener('click', function () {
     wgaTrackClick(act.nome, act.categoria);
@@ -264,29 +263,30 @@ function wgaBuildFeaturedCard(act, index) {
   return card;
 }
 
-/* Card per un alloggio (mostrata nella schermata Dormire) */
-function wgaBuildAlloggioCard(act) {
+/* Card per un alloggio (mostrata nella schermata Dormire) — stesso stile foto a
+   tutta larghezza delle card Spiagge (28 Ott 2026) */
+function wgaBuildAlloggioCard(act, index) {
   const card = document.createElement('div');
-  card.className = 'wga-act-card';
+  card.className = 'beach-card';
   const desc = act.descrizione || act.indirizzo || '';
-  const ratingHtml = act.rating ? '<div class="wga-act-rating">★ ' + wgaEsc(act.rating) + '</div>' : '';
+  const bg = WGA_BEACH_BG[(index || 0) % WGA_BEACH_BG.length];
+  const imgStyle = wgaSafeBgStyle(act.foto);
+  const imgContent = imgStyle ? '' : '🏠';
+  const tag = act.rating ? '★ ' + act.rating : '📍 Vedi dettagli';
   card.innerHTML =
-    '<div class="wga-act-img">🏠</div>' +
-    '<div class="wga-act-info">' +
-      '<div class="wga-act-name">' + wgaEsc(act.nome) + '</div>' +
-      '<div class="wga-act-desc">' + wgaEsc(desc) + '</div>' +
-      ratingHtml +
-      '<div class="wga-act-actions">' +
-        (wgaSafeUrl(act.google_maps_url) ? '<a class="wga-act-map-link" target="_blank" rel="noopener" href="' + wgaEsc(act.google_maps_url) + '">📍 Mappa</a>' : '<span></span>') +
-        '<button type="button" class="wga-act-share-btn" aria-label="Condividi ' + wgaEsc(act.nome) + '">↗</button>' +
+    '<div class="beach-img ' + bg + '" style="font-size:38px;' + imgStyle + '">' + imgContent + '</div>' +
+    '<div class="beach-info">' +
+      '<div class="beach-name">' + wgaEsc(act.nome) + '</div>' +
+      '<div class="beach-desc">' + wgaEsc(desc) + '</div>' +
+      '<div class="beach-actions">' +
+        '<span class="beach-dist">' + wgaEsc(tag) + '</span>' +
+        '<button type="button" class="beach-share-btn" aria-label="Condividi ' + wgaEsc(act.nome) + '">↗</button>' +
       '</div>' +
     '</div>';
-  card.querySelector('.wga-act-share-btn').addEventListener('click', function (e) {
+  card.querySelector('.beach-share-btn').addEventListener('click', function (e) {
     e.stopPropagation();
     shareItem(act.nome, desc, act.google_maps_url || '');
   });
-  const mapLink = card.querySelector('.wga-act-map-link');
-  if (mapLink) mapLink.addEventListener('click', function (e) { e.stopPropagation(); });
   card.addEventListener('click', function () { wgaOpenDetail(act); });
   return card;
 }
@@ -302,8 +302,8 @@ function wgaBuildCategorySection(catKey, items) {
   label.style.marginBottom = '14px';
   label.textContent = meta.icon + ' ' + meta.label;
   const scroll = document.createElement('div');
-  scroll.className = 'wga-act-scroll';
-  items.forEach(function (act) { scroll.appendChild(wgaBuildActivityCard(act)); });
+  scroll.className = 'beach-scroll';
+  items.forEach(function (act, i) { scroll.appendChild(wgaBuildActivityCard(act, i)); });
   section.appendChild(label);
   section.appendChild(scroll);
   return section;
@@ -319,8 +319,8 @@ function wgaBuildAlloggioSection(items) {
   label.style.marginBottom = '14px';
   label.textContent = '🏠 Alloggi disponibili';
   const scroll = document.createElement('div');
-  scroll.className = 'wga-act-scroll';
-  items.forEach(function (act) { scroll.appendChild(wgaBuildAlloggioCard(act)); });
+  scroll.className = 'beach-scroll';
+  items.forEach(function (act, i) { scroll.appendChild(wgaBuildAlloggioCard(act, i)); });
   section.appendChild(label);
   section.appendChild(scroll);
   return section;
@@ -459,8 +459,8 @@ async function wgaLoadDynamicActivities() {
     const featuredScrollErr = document.getElementById('wga-featured-scroll');
     if (featuredSectionErr && featuredScrollErr) {
       featuredScrollErr.innerHTML = '';
-      featuredScrollErr.appendChild(wgaBuildPromoSlotCard('Metti qui la tua attività', 'Visibilità esclusiva per migliaia di turisti'));
-      featuredScrollErr.appendChild(wgaBuildPromoSlotCard('Slot disponibile', 'La tua attività in primo piano'));
+      featuredScrollErr.appendChild(wgaBuildPromoSlotCard('Inserisci la tua attività', 'Visibilità esclusiva per migliaia di turisti'));
+      featuredScrollErr.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com'));
       featuredSectionErr.style.display = '';
     }
     return;
@@ -513,8 +513,8 @@ async function wgaLoadDynamicActivities() {
     if (featured.length) {
       featured.forEach(function (act, i) { featuredScroll.appendChild(wgaBuildFeaturedCard(act, i)); });
     } else {
-      featuredScroll.appendChild(wgaBuildPromoSlotCard('Metti qui la tua attività', 'Visibilità esclusiva per migliaia di turisti'));
-      featuredScroll.appendChild(wgaBuildPromoSlotCard('Slot disponibile', 'La tua attività in primo piano'));
+      featuredScroll.appendChild(wgaBuildPromoSlotCard('Inserisci la tua attività', 'Visibilità esclusiva per migliaia di turisti'));
+      featuredScroll.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com'));
     }
     featuredSection.style.display = '';
   }
@@ -544,6 +544,28 @@ function wgaBuildPromoSlotCard(title, subtitle) {
   return card;
 }
 
+/* Card sponsor "reale" (stesso stile visivo dello Slot Premium) che punta a un sito
+   esterno invece di aprire il contatto per comprare lo slot — usata quando uno slot
+   pubblicitario e' gia' stato venduto a un'attivita' reale (es. Schmukler Real Estate). */
+function wgaBuildSponsorAdCard(title, subtitle, url) {
+  const card = document.createElement('div');
+  card.className = 'sponsor-slot';
+  card.innerHTML =
+    '<div class="sponsor-inner">' +
+      '<div class="sponsor-star">⭐</div>' +
+      '<div class="sponsor-title">' + wgaEsc(title) + '</div>' +
+      '<div class="sponsor-sub">' + wgaEsc(subtitle) + '</div>' +
+      '<button type="button" class="sponsor-badge">Scopri di più</button>' +
+    '</div>';
+  const openLink = function (e) {
+    if (e) e.stopPropagation();
+    window.open(url, '_blank', 'noopener');
+  };
+  card.querySelector('.sponsor-badge').addEventListener('click', openLink);
+  card.addEventListener('click', openLink);
+  return card;
+}
+
 /* ===== Tap su un'icona categoria nella schermata Servizi =====
    Scorre fino alla sezione di quella categoria (se ci sono attivita'
    caricate da Supabase), oppure mostra un avviso se e' vuota. */
@@ -568,9 +590,25 @@ function wgaShowToast(msg) {
    #screen-categoria con le card di quella categoria (24 Sett 2026 — prima
    scorreva alla sezione in linea, ora la griglia Servizi mostra solo le icone). */
 function wgaOpenCategoria(catKey) {
-  const items = WGA_ACTIVITIES_BY_CATEGORY[catKey] || [];
-  const meta = WGA_CAT_META[catKey];
-  const label = meta ? meta.label : catKey;
+  /* "Ristorante" e "Pizzeria" non sono categorie reali su Supabase (restano entrambe
+     'food'): qui si dividono lato client per nome, su richiesta di Michele (30 Ott 2026)
+     - Pizzeria mostra solo La Pecora Viziosa, Ristorante mostra il resto di 'food'. */
+  const WGA_PIZZERIA_NOMI = ['la pecora viziosa'];
+  let items, label;
+  if (catKey === 'ristorante' || catKey === 'pizzeria') {
+    const foodItems = WGA_ACTIVITIES_BY_CATEGORY['food'] || [];
+    if (catKey === 'pizzeria') {
+      items = foodItems.filter(function (a) { return WGA_PIZZERIA_NOMI.indexOf((a.nome || '').trim().toLowerCase()) !== -1; });
+      label = 'Pizzeria';
+    } else {
+      items = foodItems.filter(function (a) { return WGA_PIZZERIA_NOMI.indexOf((a.nome || '').trim().toLowerCase()) === -1; });
+      label = 'Ristorante';
+    }
+  } else {
+    items = WGA_ACTIVITIES_BY_CATEGORY[catKey] || [];
+    const meta = WGA_CAT_META[catKey];
+    label = meta ? meta.label : catKey;
+  }
   if (!items.length) {
     wgaShowToast('Nessuna attivita\' “' + label + '” disponibile al momento.');
     return;
