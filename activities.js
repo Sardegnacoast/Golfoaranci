@@ -84,6 +84,21 @@ function wgaSafeBgStyle(url) {
   return safe ? "background-image:url('" + wgaEsc(safe) + "');background-size:cover;background-position:center;" : '';
 }
 
+/* Converte un URL di Google Maps nell'equivalente Apple Maps: l'app deve sempre
+   offrire anche la mappa nativa iOS, non solo Google Maps (richiesto da Apple,
+   Guideline 4 - Design, respinta 29 Ott 2026). Riconosce i pattern usati nei
+   dati (daddr=lat,lng oppure ?q=nome); se non riconosciuto restituisce '' e il
+   pulsante Apple Maps resta semplicemente nascosto, senza regressioni. */
+function wgaAppleMapsUrl(googleUrl) {
+  const safe = wgaSafeUrl(googleUrl);
+  if (!safe) return '';
+  let m = safe.match(/[?&]daddr=([^&]+)/i);
+  if (m) return 'https://maps.apple.com/?daddr=' + m[1];
+  m = safe.match(/[?&]q=([^&]+)/i);
+  if (m) return 'https://maps.apple.com/?q=' + m[1];
+  return '';
+}
+
 async function wgaFetchActivities() {
   try {
     const res = await fetch(WGA_SUPABASE_URL + '/rest/v1/activities?select=*&order=created_at.desc', {
@@ -119,11 +134,11 @@ const WGA_SPIAGGE_UFFICIALI = [
    contenuto statico e stabile, non gestito da wga-admin. Eventuali strutture
    aggiunte in Supabase (categoria "alloggio") vengono mostrate in coda a queste. */
 const WGA_STRUTTURE_UFFICIALI = [
-  { nome: 'Gabbiano Azzurro Hotel & Suites', descrizione: 'Hotel 4 stelle · 512 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_gabbiano.jpg', link: 'https://maps.google.com/?q=Gabbiano+Azzurro+Hotel+Suites+Golfo+Aranci', tag: '★ 4.6', categoria: 'alloggio' },
-  { nome: 'Hotel Villa Margherita', descrizione: 'Hotel 4 stelle · 407 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_margherita.jpg', link: 'https://maps.google.com/?q=Hotel+Villa+Margherita+Golfo+Aranci', tag: '★ 4.8', categoria: 'alloggio' },
-  { nome: 'Baia Caddinas Hotel Resort & SPA', descrizione: 'Hotel 4 stelle · 760 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_caddinas.jpg', link: 'https://maps.google.com/?q=Baia+Caddinas+Hotel+Resort+SPA+Golfo+Aranci', tag: '★ 4.4', categoria: 'alloggio' },
-  { nome: 'Hotel Castello', descrizione: 'Hotel 3 stelle · 325 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_castello.jpg', link: 'https://maps.google.com/?q=Hotel+Castello+Golfo+Aranci', tag: '★ 4.2', categoria: 'alloggio' },
-  { nome: 'Hotel Maria Golfo Aranci', descrizione: 'Hotel 3 stelle · 162 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_maria.jpg', link: 'https://maps.google.com/?q=Hotel+Maria+Golfo+Aranci', tag: '★ 4.7', categoria: 'alloggio' },
+  { nome: 'Gabbiano Azzurro Hotel & Suites', descrizione: 'Hotel 4 stelle · 512 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_gabbiano.jpg', link: 'https://maps.google.com/?q=Gabbiano+Azzurro+Hotel+Suites+Golfo+Aranci', google_maps_url: 'https://maps.google.com/?q=Gabbiano+Azzurro+Hotel+Suites+Golfo+Aranci', tag: '★ 4.6', categoria: 'alloggio' },
+  { nome: 'Hotel Villa Margherita', descrizione: 'Hotel 4 stelle · 407 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_margherita.jpg', link: 'https://maps.google.com/?q=Hotel+Villa+Margherita+Golfo+Aranci', google_maps_url: 'https://maps.google.com/?q=Hotel+Villa+Margherita+Golfo+Aranci', tag: '★ 4.8', categoria: 'alloggio' },
+  { nome: 'Baia Caddinas Hotel Resort & SPA', descrizione: 'Hotel 4 stelle · 760 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_caddinas.jpg', link: 'https://maps.google.com/?q=Baia+Caddinas+Hotel+Resort+SPA+Golfo+Aranci', google_maps_url: 'https://maps.google.com/?q=Baia+Caddinas+Hotel+Resort+SPA+Golfo+Aranci', tag: '★ 4.4', categoria: 'alloggio' },
+  { nome: 'Hotel Castello', descrizione: 'Hotel 3 stelle · 325 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_castello.jpg', link: 'https://maps.google.com/?q=Hotel+Castello+Golfo+Aranci', google_maps_url: 'https://maps.google.com/?q=Hotel+Castello+Golfo+Aranci', tag: '★ 4.2', categoria: 'alloggio' },
+  { nome: 'Hotel Maria Golfo Aranci', descrizione: 'Hotel 3 stelle · 162 recensioni', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/hotel_maria.jpg', link: 'https://maps.google.com/?q=Hotel+Maria+Golfo+Aranci', google_maps_url: 'https://maps.google.com/?q=Hotel+Maria+Golfo+Aranci', tag: '★ 4.7', categoria: 'alloggio' },
   { nome: 'Bilo Oasi Cala Moresca', descrizione: 'Appartamento · Golfo Aranci', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/airbnb_bilo.jpg', link: 'https://www.airbnb.it/rooms/1481187274322485792', tag: '🏠 Airbnb', categoria: 'alloggio' },
   { nome: 'C. Moresca Paradiso Golfo Aranci', descrizione: 'Appartamento · Golfo Aranci', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/airbnb_paradiso.jpg', link: 'https://www.airbnb.it/rooms/1453056328777721995', tag: '🏠 Airbnb', categoria: 'alloggio' },
   { nome: 'Cala Moresca Relax Golfo Aranci', descrizione: 'Appartamento · Golfo Aranci', foto: 'https://raw.githubusercontent.com/sardegnacoast/Golfoaranci/main/airbnb_relax.jpg', link: 'https://www.airbnb.it/rooms/1452945281089631279', tag: '🏠 Airbnb', categoria: 'alloggio' },
@@ -156,9 +171,12 @@ function wgaBuildStrutturaCard(item, index) {
     e.stopPropagation();
     shareItem(item.nome, item.descrizione || '', link);
   });
-  if (link) {
+  if (link && !item.google_maps_url) {
     card.addEventListener('click', function () { wgaTrackClick(item.nome, item.categoria); window.open(link, '_blank', 'noopener'); });
   } else {
+    /* Se l'elemento ha un link mappa (es. hotel verso Google Maps), si passa dal
+       dettaglio che offre anche Apple Maps, invece di aprire Google Maps da solo
+       (richiesto da Apple, Guideline 4 - Design, respinta 29 Ott 2026) */
     card.addEventListener('click', function () { wgaTrackClick(item.nome, item.categoria); wgaOpenDetail(item); });
   }
   return card;
@@ -227,11 +245,12 @@ function wgaBuildActivityCard(act, index) {
     e.stopPropagation();
     shareItem(act.nome, desc, act.google_maps_url || '');
   });
-  /* Regola base: click sulla card apre Google Maps dell'attività (24 Sett 2026) */
+  /* Il click sulla card apre la schermata di dettaglio, che offre sia Google Maps
+     sia Apple Maps: prima si saltava dritti su Google Maps senza alternativa
+     (richiesto da Apple, Guideline 4 - Design, respinta 29 Ott 2026) */
   card.addEventListener('click', function () {
     wgaTrackClick(act.nome, act.categoria);
-    if (wgaSafeUrl(act.google_maps_url)) { window.open(act.google_maps_url, '_blank', 'noopener'); }
-    else { wgaOpenDetail(act); }
+    wgaOpenDetail(act);
   });
   return card;
 }
@@ -253,12 +272,12 @@ function wgaBuildFeaturedCard(act, index) {
       '<div class="feat-name">' + wgaEsc(act.nome) + '</div>' +
       '<div class="feat-cat">' + wgaEsc(meta.label) + '</div>' +
     '</div>';
-  /* Regola base: click sulla card apre Google Maps, tranne per le spiagge che
-     mantengono la schermata di dettaglio interna (24 Sett 2026) */
+  /* Il click sulla card apre sempre la schermata di dettaglio, che offre sia
+     Google Maps sia Apple Maps (richiesto da Apple, Guideline 4 - Design,
+     respinta 29 Ott 2026) */
   card.addEventListener('click', function () {
     wgaTrackClick(act.nome, act.categoria);
-    if (act.categoria !== 'spiagge' && wgaSafeUrl(act.google_maps_url)) { window.open(act.google_maps_url, '_blank', 'noopener'); }
-    else { wgaOpenDetail(act); }
+    wgaOpenDetail(act);
   });
   return card;
 }
@@ -426,7 +445,9 @@ function wgaOpenDetail(act) {
     ctaWrap.style.display = 'none';
   }
 
-  /* CTA apri in maps */
+  /* CTA apri in maps: Google Maps + Apple Maps (quest'ultimo richiesto da Apple,
+     Guideline 4 - Design, respinta 29 Ott 2026 — l'app deve offrire sempre anche
+     la mappa nativa iOS, non solo una di terze parti) */
   const mapsWrap = document.getElementById('wga-detail-maps-wrap');
   const mapsLink = document.getElementById('wga-detail-maps-link');
   const mapsHref = wgaSafeUrl(act.link || act.google_maps_url || '');
@@ -435,6 +456,17 @@ function wgaOpenDetail(act) {
     mapsWrap.style.display = '';
   } else {
     mapsWrap.style.display = 'none';
+  }
+  const appleMapsWrap = document.getElementById('wga-detail-maps-apple-wrap');
+  const appleMapsLink = document.getElementById('wga-detail-maps-apple-link');
+  const appleMapsHref = wgaAppleMapsUrl(act.link || act.google_maps_url || '');
+  if (appleMapsLink) {
+    if (appleMapsHref) {
+      appleMapsLink.href = appleMapsHref;
+      appleMapsWrap.style.display = '';
+    } else {
+      appleMapsWrap.style.display = 'none';
+    }
   }
 
   /* Condividi */
