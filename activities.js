@@ -516,7 +516,7 @@ async function wgaLoadDynamicActivities() {
     if (featuredSectionErr && featuredScrollErr) {
       featuredScrollErr.innerHTML = '';
       featuredScrollErr.appendChild(wgaBuildPromoSlotCard('Inserisci la tua attività', 'Visibilità esclusiva per migliaia di turisti'));
-      featuredScrollErr.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com'));
+      featuredScrollErr.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com', 'https://www.schmukler-realestate.com/wp-content/uploads/2026/05/schmukler-realestate-in-serdegna.jpg'));
       featuredSectionErr.style.display = '';
     }
     return;
@@ -575,7 +575,7 @@ async function wgaLoadDynamicActivities() {
       featured.forEach(function (act, i) { featuredScroll.appendChild(wgaBuildFeaturedCard(act, i)); });
     } else {
       featuredScroll.appendChild(wgaBuildPromoSlotCard('Inserisci la tua attività', 'Visibilità esclusiva per migliaia di turisti'));
-      featuredScroll.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com'));
+      featuredScroll.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com', 'https://www.schmukler-realestate.com/wp-content/uploads/2026/05/schmukler-realestate-in-serdegna.jpg'));
     }
     featuredSection.style.display = '';
   }
@@ -610,7 +610,7 @@ function wgaBuildPromoSlotCard(title, subtitle) {
 /* Card sponsor "reale" (stesso stile visivo dello Slot Premium) che punta a un sito
    esterno invece di aprire il contatto per comprare lo slot — usata quando uno slot
    pubblicitario e' gia' stato venduto a un'attivita' reale (es. Schmukler Real Estate). */
-function wgaBuildSponsorAdCard(title, subtitle, url) {
+function wgaBuildSponsorAdCard(title, subtitle, url, img) {
   /* Link vero (<a href target=_blank>) e non window.open(): dentro l'app
      nativa (Capacitor/WKWebView) window.open da un listener JS puo' essere
      ignorato, mentre un anchor esterno viene sempre aperto nel browser di
@@ -622,7 +622,14 @@ function wgaBuildSponsorAdCard(title, subtitle, url) {
   card.rel = 'noopener';
   card.style.textDecoration = 'none';
   card.style.color = 'inherit';
+  /* Sfondo foto reale (31 Ott 2026): se fornita, mostra la foto dell'attivita'
+     sponsorizzata con un overlay scuro sopra per leggibilita' del testo,
+     stesso meccanismo di wgaSafeBgStyle gia' usato per le card con act.foto. */
+  const imgStyle = wgaSafeBgStyle(img);
+  if (imgStyle) card.style.cssText += imgStyle;
+  const overlayHtml = imgStyle ? '<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,15,0.25),rgba(10,10,15,0.8));"></div>' : '';
   card.innerHTML =
+    overlayHtml +
     '<div class="sponsor-inner">' +
       '<div class="sponsor-star">⭐</div>' +
       '<div class="sponsor-title">' + wgaEsc(title) + '</div>' +
