@@ -585,23 +585,25 @@ async function wgaLoadDynamicActivities() {
    attività in evidenza: deve risultare subito accattivante e riconoscibile come spazio
    pubblicitario acquistabile, non come una card normale (richiesta Enrico 18 Ott 2026) */
 function wgaBuildPromoSlotCard(title, subtitle) {
-  const card = document.createElement('div');
+  const subject = encodeURIComponent('Richiesta Slot Premium - In Evidenza');
+  const body = encodeURIComponent('Ciao, vorrei informazioni per uno slot premium "In evidenza" nella app Welcome Golfo Aranci.\n\nNome attività:\nTelefono:\n');
+  /* Link vero (<a href="mailto:...">) e non window.open(): dentro l'app
+     nativa (Capacitor/WKWebView) window.open da un listener JS puo' essere
+     ignorato, mentre un anchor viene sempre aperto dal sistema — stesso
+     meccanismo dei pulsanti "Apri in Google/Apple Maps" e della card
+     sponsor Schmukler (31 Ott 2026). */
+  const card = document.createElement('a');
   card.className = 'sponsor-slot';
+  card.href = 'mailto:welcomegolfoaranci@gmail.com?subject=' + subject + '&body=' + body;
+  card.style.textDecoration = 'none';
+  card.style.color = 'inherit';
   card.innerHTML =
     '<div class="sponsor-inner">' +
       '<div class="sponsor-star">⭐</div>' +
       '<div class="sponsor-title">' + wgaEsc(title) + '</div>' +
       '<div class="sponsor-sub">' + wgaEsc(subtitle) + '</div>' +
-      '<button type="button" class="sponsor-badge">✦ Slot Premium</button>' +
+      '<span class="sponsor-badge">✦ Slot Premium</span>' +
     '</div>';
-  const openPromoContact = function (e) {
-    if (e) e.stopPropagation();
-    const subject = encodeURIComponent('Richiesta Slot Premium - In Evidenza');
-    const body = encodeURIComponent('Ciao, vorrei informazioni per uno slot premium "In evidenza" nella app Welcome Golfo Aranci.\n\nNome attività:\nTelefono:\n');
-    window.open('mailto:welcomegolfoaranci@gmail.com?subject=' + subject + '&body=' + body, '_self');
-  };
-  card.querySelector('.sponsor-badge').addEventListener('click', openPromoContact);
-  card.addEventListener('click', openPromoContact);
   return card;
 }
 
