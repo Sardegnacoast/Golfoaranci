@@ -244,6 +244,20 @@ function wgaBuildBeachCard(act, index) {
   return card;
 }
 
+/* Icona specifica di una card senza foto, presa dal primo tag se inizia con
+   un'emoji (es. ['🏥 Medico'] → '🏥'); altrimenti torna null e si usa l'icona
+   generica della categoria. Evita che tutte le card senza foto di una stessa
+   categoria (es. Salute) mostrino la stessa icona ripetuta (2 Nov 2026, su
+   richiesta di Enrico: "togli il cuore come icona, metti foto se riesci o altro"). */
+function wgaIconFromTags(act) {
+  if (Array.isArray(act.tags) && act.tags.length) {
+    const first = String(act.tags[0]).trim();
+    const m = first.match(/^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)/u);
+    if (m && m[1]) return m[1];
+  }
+  return null;
+}
+
 /* Card generica per le altre categorie (mostrata nella schermata Servizi) — stesso
    stile foto a tutta larghezza delle card Spiagge/Dormire (28 Ott 2026) */
 function wgaBuildActivityCard(act, index) {
@@ -253,7 +267,7 @@ function wgaBuildActivityCard(act, index) {
   const desc = act.descrizione || act.indirizzo || '';
   const bg = WGA_BEACH_BG[(index || 0) % WGA_BEACH_BG.length];
   const imgStyle = wgaSafeBgStyle(act.foto);
-  const imgContent = imgStyle ? '' : meta.icon;
+  const imgContent = imgStyle ? '' : (wgaIconFromTags(act) || meta.icon);
   const tag = act.rating ? '★ ' + act.rating : '📍 Vedi dettagli';
   card.innerHTML =
     '<div class="beach-img ' + bg + '" style="font-size:38px;' + imgStyle + '">' + imgContent + '</div>' +
@@ -407,7 +421,7 @@ function wgaOpenDetail(act) {
     heroEl.style.backgroundImage = '';
     iconEl.style.display = '';
   }
-  document.getElementById('wga-detail-icon').textContent = meta.icon;
+  document.getElementById('wga-detail-icon').textContent = wgaIconFromTags(act) || meta.icon;
   document.getElementById('wga-detail-eyebrow').textContent = meta.label;
   document.getElementById('wga-detail-name').textContent = act.nome || '';
   document.getElementById('wga-detail-cat-badge').textContent = meta.icon + ' ' + meta.label;
@@ -544,6 +558,17 @@ async function wgaLoadDynamicActivities() {
       const startIndex = WGA_SPIAGGE_UFFICIALI.length;
       beaches.forEach(function (act, i) { beachScroll.appendChild(wgaBuildBeachCard(act, startIndex + i)); });
     }
+  }
+
+  /* Voci "salute" che sono in realtà numeri di emergenza generali (Polizia di
+     Stato, Vigili del Fuoco, Guardia Costiera, Carabinieri, Polizia Municipale):
+     tolte dalla sezione Salute su richiesta di Enrico (2 Nov 2026) perché ora
+     coperte dalla schermata SOS statica (#screen-emergenze) con card dedicate;
+     in Salute restano solo i veri servizi sanitari (Guardia Medica, Pronto
+     Soccorso, farmacie). */
+  const WGA_SALUTE_ESCLUSI_SOS = [33, 34, 35, 36, 37];
+  if (byCategory.salute) {
+    byCategory.salute = byCategory.salute.filter(function (a) { return WGA_SALUTE_ESCLUSI_SOS.indexOf(a.id) === -1; });
   }
 
   /* Tutte le altre categorie (tranne alloggio) → tenute in cache, mostrate solo
