@@ -530,7 +530,7 @@ async function wgaLoadDynamicActivities() {
     if (featuredSectionErr && featuredScrollErr) {
       featuredScrollErr.innerHTML = '';
       featuredScrollErr.appendChild(wgaBuildPromoSlotCard('Inserisci la tua attività', 'Visibilità esclusiva per migliaia di turisti'));
-      featuredScrollErr.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com', 'https://www.schmukler-realestate.com/wp-content/uploads/2026/05/schmukler-realestate-in-serdegna.jpg'));
+      featuredScrollErr.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com', 'https://welcomegolfoaranci.app/foto_schmukler.jpg'));
       featuredSectionErr.style.display = '';
     }
     return;
@@ -600,7 +600,7 @@ async function wgaLoadDynamicActivities() {
       featured.forEach(function (act, i) { featuredScroll.appendChild(wgaBuildFeaturedCard(act, i)); });
     } else {
       featuredScroll.appendChild(wgaBuildPromoSlotCard('Inserisci la tua attività', 'Visibilità esclusiva per migliaia di turisti'));
-      featuredScroll.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com', 'https://www.schmukler-realestate.com/wp-content/uploads/2026/05/schmukler-realestate-in-serdegna.jpg'));
+      featuredScroll.appendChild(wgaBuildSponsorAdCard('Schmukler Real Estate', 'Immobili e investimenti a Golfo Aranci', 'https://www.schmukler-realestate.com', 'https://welcomegolfoaranci.app/foto_schmukler.jpg'));
     }
     featuredSection.style.display = '';
   }
