@@ -36,17 +36,17 @@ const WGA_CAT_META = {
   spiagge:           { icon: '🏖️', label: 'Spiagge' },
   attrazioni:        { icon: '⭐', label: 'Attrazioni' },
   bar:               { icon: '🍹', label: 'Bar' },
-  gelateria:         { icon: '🍦', label: 'Gelateria' },
-  noleggio:          { icon: '🚗', label: 'Noleggio' },
+  gelateria:         { icon: '🍦', label: 'Gelaterie' },
+  noleggio:          { icon: '🚗', label: 'Noleggi' },
   escursioni:        { icon: '🥾', label: 'Escursioni' },
   servizi_spiaggia:  { icon: '🏖️', label: 'Servizi Spiaggia' },
-  negozio:           { icon: '🛍️', label: 'Negozio' },
+  negozio:           { icon: '🛍️', label: 'Negozi' },
   eventi:            { icon: '🎉', label: 'Eventi' },
   locali_notturni:   { icon: '🌙', label: 'Locali Notturni' },
   salute:            { icon: '❤️', label: 'Salute' },
   sport:             { icon: '⚽', label: 'Sport' },
   pet:               { icon: '🐾', label: 'Pet' },
-  alloggio:          { icon: '🏠', label: 'Alloggio' }
+  alloggio:          { icon: '🏠', label: 'Alloggi' }
 };
 
 /* Ordine di visualizzazione delle sezioni nella schermata Servizi
