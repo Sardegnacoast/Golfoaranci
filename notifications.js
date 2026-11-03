@@ -42,15 +42,50 @@ function wgaNotifEnabled() {
   return localStorage.getItem(WGA_NOTIF_KEY) === '1';
 }
 
+/* True dentro l'app nativa Capacitor (iOS/Android), false nel sito/PWA nel browser.
+   Nell'app nativa il WebView NON implementa l'API browser "Notification": le push
+   vere passano da OneSignal (già inizializzato su "deviceready" in index.html). */
+function wgaIsNativeApp() {
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+
 /* Imposta lo stato iniziale dell'interruttore nella schermata Profilo */
 function initNotifToggle() {
   const toggle = document.getElementById('notif-toggle');
   if (!toggle) return;
+  if (wgaIsNativeApp() && window.OneSignal && OneSignal.User && OneSignal.User.pushSubscription) {
+    try {
+      toggle.checked = !!OneSignal.User.pushSubscription.optedIn;
+      return;
+    } catch (e) {}
+  }
   toggle.checked = wgaNotifEnabled();
 }
 
 /* Chiamata dall'interruttore nella schermata Profilo (onchange) */
 function toggleNotifications(enabled) {
+  /* App nativa: usa OneSignal (già collegato alle push reali), non l'API
+     browser "Notification" che dentro il WebView non esiste mai. */
+  if (wgaIsNativeApp()) {
+    if (!window.OneSignal) {
+      const t = document.getElementById('notif-toggle'); if (t) t.checked = wgaNotifEnabled();
+      return;
+    }
+    try {
+      if (enabled) {
+        OneSignal.User.pushSubscription.optIn();
+        localStorage.setItem(WGA_NOTIF_KEY, '1');
+      } else {
+        OneSignal.User.pushSubscription.optOut();
+        localStorage.setItem(WGA_NOTIF_KEY, '0');
+      }
+    } catch (e) {
+      const t = document.getElementById('notif-toggle'); if (t) t.checked = wgaNotifEnabled();
+    }
+    return;
+  }
+
+  /* Sito/PWA nel browser: notifiche locali via API standard del browser. */
   if (enabled) {
     if (!("Notification" in window)) {
       alert("Il tuo browser non supporta le notifiche.");
