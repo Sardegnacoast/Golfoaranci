@@ -698,10 +698,10 @@ function wgaOpenCategoria(catKey) {
     const foodItems = WGA_ACTIVITIES_BY_CATEGORY['food'] || [];
     if (catKey === 'pizzeria') {
       items = foodItems.filter(function (a) { return WGA_PIZZERIA_NOMI.indexOf((a.nome || '').trim().toLowerCase()) !== -1; });
-      label = 'Pizzeria';
+      label = 'Pizzerie';
     } else {
       items = foodItems.filter(function (a) { return WGA_PIZZERIA_NOMI.indexOf((a.nome || '').trim().toLowerCase()) === -1; });
-      label = 'Ristorante';
+      label = 'Ristoranti';
     }
   } else {
     items = WGA_ACTIVITIES_BY_CATEGORY[catKey] || [];
